@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:flutter/material.dart';
+import 'package:socket_io_client/socket_io_client.dart' as ioo;
 
 class SocketClient {
   static final SocketClient _instance = SocketClient._internal();
   factory SocketClient() => _instance;
   SocketClient._internal();
 
-  IO.Socket? _socket;
+  ioo.Socket? _socket;
   String? _serverUrl;
   bool _isConnected = false;
   Timer? _reconnectTimer;
@@ -22,7 +23,7 @@ class SocketClient {
 
   // Getters
   bool get isConnected => _isConnected;
-  IO.Socket? get socket => _socket;
+  ioo.Socket? get socket => _socket;
   Stream<bool> get connectionStream => _connectionController.stream;
   Stream<String> get messageStream => _messageController.stream;
   Stream<Map<String, dynamic>> get errorStream => _errorController.stream;
@@ -45,7 +46,7 @@ class SocketClient {
       }
 
       // Configure socket options
-      final options = IO.OptionBuilder()
+      final options = ioo.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
           .setTimeout(timeout.inMilliseconds)
@@ -54,7 +55,7 @@ class SocketClient {
           .build();
 
       // Create socket instance
-      _socket = IO.io(_serverUrl! + (namespace ?? ''), options);
+      _socket = ioo.io(_serverUrl! + (namespace ?? ''), options);
 
       // Set up event listeners
       _setupEventListeners();
@@ -295,21 +296,21 @@ class SocketUsageExample {
 
     // Listen for connection status
     _socketClient.connectionStream.listen((isConnected) {
-      print('Connection status: $isConnected');
+      debugPrint('Connection status: $isConnected');
     });
 
     // Listen for errors
     _socketClient.errorStream.listen((error) {
-      print('Socket error: ${error['type']} - ${error['message']}');
+      debugPrint('Socket error: ${error['type']} - ${error['message']}');
     });
 
     // Listen for custom events
     _socketClient.on('message', (data) {
-      print('Received message: $data');
+      debugPrint('Received message: $data');
     });
 
     _socketClient.on('notification', (data) {
-      print('Received notification: $data');
+      debugPrint('Received notification: $data');
     });
 
     // Send a message
@@ -326,9 +327,9 @@ class SocketUsageExample {
       final response = await _socketClient.emitWithAck('important_message', {
         'content': 'This needs confirmation',
       });
-      print('Server acknowledged: $response');
+      debugPrint('Server acknowledged: $response');
     } catch (e) {
-      print('Message not acknowledged: $e');
+      debugPrint('Message not acknowledged: $e');
     }
   }
 

@@ -4,10 +4,9 @@ import 'package:delivery/Features/Splash/Cubit/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../Profile/users_page.dart';
 
 Future<bool> showAuthDialog(BuildContext context) async {
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -58,7 +57,7 @@ Future<bool> showAuthDialog(BuildContext context) async {
                   ),
                   content: SingleChildScrollView(
                     child: Form(
-                      key: _formKey,
+                      key: formKey,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -106,7 +105,7 @@ Future<bool> showAuthDialog(BuildContext context) async {
                               decoration: const InputDecoration(
                                 labelText: 'User Type',
                               ),
-                              value: selectedUserType,
+                              initialValue: selectedUserType,
                               items: UserType.values.map((userType) {
                                 return DropdownMenuItem(
                                   value: userType,
@@ -146,7 +145,7 @@ Future<bool> showAuthDialog(BuildContext context) async {
                       onPressed: state is AuthLoading
                           ? null
                           : () {
-                              if (_formKey.currentState?.validate() == true) {
+                              if (formKey.currentState?.validate() == true) {
                                 if (isSignup) {
                                   cubit.signup(
                                     name: nameController.text,

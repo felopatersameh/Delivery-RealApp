@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:delivery/Core/Enum/user_type.dart';
 import 'package:delivery/Features/Profile/Model/user_modell.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

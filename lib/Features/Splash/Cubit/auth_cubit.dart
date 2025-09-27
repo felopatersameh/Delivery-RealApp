@@ -5,7 +5,6 @@ import 'package:delivery/Features/Splash/Cubit/auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../Core/Database/real_time_firbase.dart';
-import '../../Profile/users_page.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());

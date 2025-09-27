@@ -1,8 +1,6 @@
 import 'package:delivery/Core/Enum/user_type.dart';
 import 'package:delivery/Features/Profile/Model/user_modell.dart';
 import 'package:delivery/Features/Profile/Widgets/user_card.dart';
-import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
-import 'package:delivery/Features/Profile/users_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
