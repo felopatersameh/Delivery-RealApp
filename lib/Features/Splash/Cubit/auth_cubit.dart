@@ -29,9 +29,11 @@ class AuthCubit extends Cubit<AuthState> {
         emit(AuthError('Email already exists'));
         return;
       }
-      final tokenFCM =await LocalStorageService.getValue(LocalStorageKeys.tokenFCM);
+      final tokenFCM = await LocalStorageService.getValue(
+        LocalStorageKeys.tokenFCM,
+      );
       final respose = await RealtimeFirebase.create('users', {
-        'tokenFCM':tokenFCM,
+        'tokenFCM': tokenFCM,
         'email': email,
         'password': password,
         'name': name,
@@ -46,41 +48,39 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<void> login({
-  required String email,
-  required String password,
-}) async {
-  emit(AuthLoading());
+  Future<void> login({required String email, required String password}) async {
+    emit(AuthLoading());
 
-  try {
-    final tokenFCM = await LocalStorageService.getValue(LocalStorageKeys.tokenFCM);
+    try {
+      final tokenFCM = await LocalStorageService.getValue(
+        LocalStorageKeys.tokenFCM,
+      );
 
-    final snapshot = await RealtimeFirebase.query(
-      'users',
-      orderByChild: 'email',
-      equalTo: email,
-    );
+      final snapshot = await RealtimeFirebase.query(
+        'users',
+        orderByChild: 'email',
+        equalTo: email,
+      );
 
-    if (snapshot != null) {
-      final userMap = Map<String, dynamic>.from(snapshot as Map);
-      final firstKey = userMap.keys.first;
-      final user = userMap[firstKey] as Map;
+      if (snapshot != null) {
+        final userMap = Map<String, dynamic>.from(snapshot as Map);
+        final id = userMap.keys.first;
+        final user = userMap[id] as Map;
 
-      if (user['password'] == password) {
-        await RealtimeFirebase.updateData(
-          'users/$firstKey',
-          {'tokenFCM': tokenFCM},
-        );
+        if (user['password'] == password) {
+          await RealtimeFirebase.updateData('users/$id', {
+            'tokenFCM': tokenFCM,
+          });
+          LocalStorageService.setValue(LocalStorageKeys.idUser, id);
 
-        emit(AuthSuccess());
-        return;
+          emit(AuthSuccess());
+          return;
+        }
       }
+
+      emit(AuthError('Invalid email or password'));
+    } catch (e) {
+      emit(AuthError('Login failed: ${e.toString()}'));
     }
-
-    emit(AuthError('Invalid email or password'));
-  } catch (e) {
-    emit(AuthError('Login failed: ${e.toString()}'));
   }
-}
-
 }

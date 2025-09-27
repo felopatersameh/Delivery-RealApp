@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AlphabeticalUserList extends StatelessWidget {
   final List<UserModell> filteredUsers;
+  final List<String>? newUSers;
   final UserType currentUserType;
   final void Function(UserModell) onUserTap;
   final Map<String, List<UserModell>> Function(List<UserModell>, bool)
@@ -17,6 +18,7 @@ class AlphabeticalUserList extends StatelessWidget {
     required this.currentUserType,
     required this.onUserTap,
     required this.groupUsersByLetter,
+    required this.newUSers,
   });
 
   @override
@@ -30,9 +32,20 @@ class AlphabeticalUserList extends StatelessWidget {
 
     if (groupedUsers.isEmpty) {
       return Center(
-        child: Text(
-          'No users to display',
-          style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade600),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.people_outline,
+              size: 64.sp,
+              color: Colors.grey.shade400,
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'No users to display',
+              style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade600),
+            ),
+          ],
         ),
       );
     }
@@ -91,13 +104,23 @@ class AlphabeticalUserList extends StatelessWidget {
             ),
 
             // Users in this section
-            ...usersInSection.map(
-              (user) => UserCard(
-                user: user,
-                currentUserType: currentUserType,
-                onUserTap: onUserTap,
-              ),
-            ),
+            ...usersInSection.map((user) {
+              final isNew = newUSers?.contains(user.id) ?? false;
+
+              return Container(
+                decoration: isNew
+                    ? BoxDecoration(
+                        border: Border.all(width: 2.w, color: Colors.green),
+                        borderRadius: BorderRadius.circular(12.r),
+                      )
+                    : null,
+                child: UserCard(
+                  user: user,
+                  currentUserType: currentUserType,
+                  onUserTap: onUserTap,
+                ),
+              );
+            }),
           ],
         );
       },

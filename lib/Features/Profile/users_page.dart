@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:delivery/Core/Enum/user_type.dart';
 import 'package:delivery/Features/Profile/Model/user_modell.dart';
 import 'package:delivery/Features/Profile/Widgets/alphabetical_user_list.dart';
@@ -31,7 +33,6 @@ Map<String, List<UserModell>> _groupUsersByLetter(
         grouped[letter]!.add(user);
       }
     }
-   
   }
   // Sort the keys alphabetically
   var sortedKeys = grouped.keys.toList()..sort();
@@ -53,14 +54,16 @@ class UsersPage extends StatefulWidget {
 
 class _UsersPageState extends State<UsersPage> {
   TextEditingController searchController = TextEditingController();
-
+  List<String>? newUSers = [];
   @override
   void initState() {
     super.initState();
     // Initialize ProfileCubit when page loads
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   context.read<ProfileCubit>().init();
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      newUSers = context.read<ProfileCubit>().state.newUserIds ?? [];
+      log("newUSers ::${newUSers?.toList()}");
+      context.read<ProfileCubit>().resetBadge();
+    });
   }
 
   @override
@@ -213,6 +216,7 @@ class _UsersPageState extends State<UsersPage> {
                                   )
                                 : AlphabeticalUserList(
                                     filteredUsers: filteredUsers,
+                                    newUSers: newUSers ?? [],
                                     currentUserType: state.me!.userType,
                                     groupUsersByLetter: (users, p0) =>
                                         _groupUsersByLetter(

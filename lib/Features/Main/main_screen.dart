@@ -1,5 +1,5 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:badges/badges.dart' as badges;
 import 'cubit/main_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,7 +28,7 @@ class MainScreen extends StatelessWidget {
             ),
             body: cubit.screens[state.index],
             bottomNavigationBar: BottomNavigationBar(
-              items: cubit.bottomNavigationBarItem,
+              items: cubit.bottomNavigationBarItem(context),
               currentIndex: state.index,
               onTap: (value) => cubit.changeIndex(value),
               type: BottomNavigationBarType.fixed,
@@ -40,4 +40,15 @@ class MainScreen extends StatelessWidget {
       ),
     );
   }
+}
+Widget bottomNavIconWithBadge(int newUsersCount, IconData iconData) {
+  return badges.Badge(
+    position: badges.BadgePosition.topEnd(top: -4, end: -4),
+    badgeContent: Text(
+      '$newUsersCount',
+      style: TextStyle(color: Colors.white, fontSize: 12.sp),
+    ),
+    showBadge: newUsersCount > 0,
+    child: Icon(iconData, size: 30.sp),
+  );
 }

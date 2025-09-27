@@ -68,11 +68,13 @@ class ProfilePage extends StatelessWidget {
                     );
 
                     if (response && context.mounted) {
-                      LocalStorageService.clear();
-                      Navigator.of(context).pushAndRemoveUntil(
+                    await  LocalStorageService.clear();
+                      if (context.mounted) {
+                        Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (context) => SplashApp()),
-                        (route) => true,
+                        (route) => false,
                       );
+                      }
                     }
                   },
                   child: ProfileCard(

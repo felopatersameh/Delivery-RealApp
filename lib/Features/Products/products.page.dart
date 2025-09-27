@@ -102,8 +102,8 @@ class ProductsPage extends StatelessWidget {
             },
           ),
         ),
-      
-     );
+      );
+     
   }
 }
 
@@ -375,6 +375,7 @@ class _ProductItemState extends State<ProductItem> {
                     ),
                   ] else ...[
                     // Out of Stock Button
+                     SizedBox(height:40 .h),
                     SizedBox(
                       width: double.infinity,
                       height: 32.h,

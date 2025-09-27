@@ -1,10 +1,15 @@
-import 'package:delivery/Core/Local/local_storage.dart';
-import 'package:delivery/Core/Local/local_storage_keys.dart';
+import 'package:dio/dio.dart';
+import 'dart:convert';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+
+import '../Local/local_storage.dart';
+import '../Local/local_storage_keys.dart';
 
 class NotificationServices {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final Dio _dio = Dio();
 
   initFCM() async {
     await _firebaseMessaging.requestPermission();
@@ -20,5 +25,42 @@ class NotificationServices {
     });
   }
 
-  Future<void> sendNotification() async {}
+  Future<void> sendNotification({
+    required String title,
+    required String body,
+    required List<String> tokens,
+  }) async {
+    try {
+      const String serverKey = 'YOUR_SERVER_KEY_HERE'; // ضع المفتاح هنا
+
+      for (final token in tokens) {
+        final payload = {
+          "to": token,
+          "notification": {
+            "title": title,
+            "body": body,
+          },
+          "data": {
+            "click_action": "FLUTTER_NOTIFICATION_CLICK",
+            "status": "done",
+          }
+        };
+
+        await _dio.post(
+          'https://fcm.googleapis.com/fcm/send',
+          options: Options(
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'key=$serverKey',
+            },
+          ),
+          data: jsonEncode(payload),
+        );
+      }
+
+      debugPrint('🔔 Notifications sent to ${tokens.length} users.');
+    } catch (e) {
+      debugPrint('❌ Error sending notifications: $e');
+    }
+  }
 }
