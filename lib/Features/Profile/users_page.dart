@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:delivery/Core/Enum/user_type.dart';
 import 'package:delivery/Features/Profile/Model/user_modell.dart';
 import 'package:delivery/Features/Profile/Widgets/alphabetical_user_list.dart';
@@ -61,7 +59,6 @@ class _UsersPageState extends State<UsersPage> {
     // Initialize ProfileCubit when page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       newUSers = context.read<ProfileCubit>().state.newUserIds ?? [];
-      log("newUSers ::${newUSers?.toList()}");
       context.read<ProfileCubit>().resetBadge();
     });
   }
@@ -113,19 +110,17 @@ class _UsersPageState extends State<UsersPage> {
                   color: Colors.white,
                   child: TextField(
                     controller: searchController,
-                    onChanged: (value) {
-                      // Trigger rebuild by calling setState minimally or using StreamBuilder
-                      // But since we removed setState, we'll use a different approach
-                    },
+                    // onChanged: (value) {
+                    //   // Trigger rebuild by calling setState minimally or using StreamBuilder
+                    //   // But since we removed setState, we'll use a different approach
+                    // },
                     decoration: InputDecoration(
-                      hintText: 'Search by name, email, phone, or type...',
+                      hintText: 'Searching.....',
                       hintStyle: TextStyle(fontSize: 14.sp),
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          searchController.clear();
-                        },
+                        onPressed: () => searchController.clear(),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
