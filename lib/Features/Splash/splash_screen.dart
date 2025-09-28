@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:delivery/Core/Local/local_storage.dart';
 import 'package:delivery/Core/Local/local_storage_keys.dart';
+import 'package:delivery/Features/Products/cubit/products_cubit.dart';
 import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,9 +28,7 @@ class _SplashAppState extends State<SplashApp>
   void initState() {
     super.initState();
 
-    _animationController = AnimationController(
-      vsync: this,
-    );
+    _animationController = AnimationController(vsync: this);
 
     // Create progress animation
     _progressAnimation =
@@ -59,16 +58,19 @@ class _SplashAppState extends State<SplashApp>
       defaultValue: "",
     );
     _animationController.value = 0.4;
-    if (id.isEmpty || id == "" ||  tokenFCM.isEmpty || tokenFCM == "") {
+    if (id.isEmpty || id == "" || tokenFCM.isEmpty || tokenFCM == "") {
       if (mounted) {
         passed = await showAuthDialog(context);
       }
     }
-    if (passed && mounted) {
+    if (passed) {
       _animationController.value = 0.5;
+      if (!mounted) return;
       await context.read<ProfileCubit>().init(); //* 2
       _animationController.value = 0.6;
       _animationController.value = 0.7;
+      if (!mounted) return;
+      await context.read<ProductsCubit>().init(); //* 2
       _animationController.value = 0.8;
       _animationController.value = 0.9;
       _animationController.value = 1.0;
@@ -91,8 +93,7 @@ class _SplashAppState extends State<SplashApp>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          Colors.white, 
+      backgroundColor: Colors.white,
       body: Center(
         child: StreamBuilder<double>(
           stream: _progressStreamController.stream,

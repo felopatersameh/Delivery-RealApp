@@ -1,4 +1,5 @@
 import 'package:delivery/Features/Orders/order_page.dart';
+import 'package:delivery/Features/Products/cubit/products_cubit.dart';
 import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
 import 'package:delivery/Features/Profile/profile_page.dart';
 import 'package:flutter/material.dart';
@@ -15,14 +16,15 @@ class MainCubit extends Cubit<MainState> {
 
   List<BottomNavigationBarItem> bottomNavigationBarItem(BuildContext context) {
     final profile = context.read<ProfileCubit>().state;
+    final product = context.read<ProductsCubit>().state;
     return [
       BottomNavigationBarItem(
-        icon: bottomNavIconWithBadge(5, Icons.shopping_basket_rounded),
+        icon: bottomNavIconWithBadge(0, Icons.shopping_basket_rounded),
         label: "Orders",
       ),
 
       BottomNavigationBarItem(
-        icon:  bottomNavIconWithBadge(5, Icons.store_rounded),
+        icon: bottomNavIconWithBadge(product.badge, Icons.store_rounded),
         label: "Products",
       ),
 

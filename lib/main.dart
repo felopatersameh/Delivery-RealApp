@@ -10,6 +10,7 @@ import 'package:hive_flutter/adapters.dart';
 
 import 'Core/Database/real_time_firbase.dart';
 import 'Core/Notifications/notification_services.dart';
+import 'Features/Products/cubit/products_cubit.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -40,7 +41,10 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (context) => ProfileCubit())],
+      providers: [
+        BlocProvider(create: (context) => ProfileCubit()),
+        BlocProvider(create: (context) => ProductsCubit()),
+        ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
         minTextAdapt: true,

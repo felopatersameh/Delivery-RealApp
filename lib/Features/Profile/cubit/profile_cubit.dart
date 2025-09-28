@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
@@ -66,7 +65,6 @@ class ProfileCubit extends Cubit<ProfileState> {
     final List<String> addedIds = newIds
         .where((id) => !oldIds.contains(id))
         .toList();
-    log("Users:::${addedIds.toList()}");
     await LocalStorageService.setValue(LocalStorageKeys.idUsers, newIds);
 
     emit(
@@ -150,4 +148,5 @@ class ProfileCubit extends Cubit<ProfileState> {
     _stopListeningToUsers();
     return super.close();
   }
+
 }
