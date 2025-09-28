@@ -1,3 +1,6 @@
+import 'package:delivery/Features/Orders/Cubit/order_cubit.dart';
+import 'package:delivery/Features/Orders/Models/order_model.dart';
+import 'package:delivery/Features/Orders/Models/order_product.dart';
 import 'package:delivery/Features/Products/Model/product_model.dart';
 import 'package:delivery/Features/Products/Widgets/product_item.dart';
 import 'package:delivery/Features/Products/cubit/products_cubit.dart';
@@ -6,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../Orders/Models/order_manager.dart';
 
 class ProductsPage extends StatefulWidget {
   const ProductsPage({super.key});
@@ -28,7 +33,7 @@ class _ProductsPageState extends State<ProductsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final idUser = context.read<ProfileCubit>().state.me!.id;
+    final user = context.read<ProfileCubit>().state.me;
     return BlocBuilder<ProductsCubit, ProductsState>(
       builder: (context, state) {
         final cubit = context.read<ProductsCubit>();
@@ -56,13 +61,23 @@ class _ProductsPageState extends State<ProductsPage> {
                       : null,
                   child: ProductItem(
                     product: state.products![index],
-                    onAddToOrder: (product, quantity) {},
-                    currentUserId: idUser,
+                    onAddToOrder: (product, quantity) {
+                      final order = OrderManager.createOrder(
+                        products: [
+                          OrderProduct(product: product, quantity: quantity),
+                        ],
+                        client: user,
+                        vendorId: '',
+                      );
+
+                      context.read<OrdersCubit>().createOrder(order);
+                    },
+                    currentUserId: user!.id,
                     onDelete: (id) {
                       cubit.deleteProduct(id);
                     },
                     onEdit: (product) {
-                      _showUpdateProductBottomSheet(context,idUser,product);
+                      _showUpdateProductBottomSheet(context, user.id, product);
                     },
                   ),
                 );
@@ -78,7 +93,7 @@ class _ProductsPageState extends State<ProductsPage> {
 Future<void> _showUpdateProductBottomSheet(
   BuildContext context,
   String id,
-  ProductModel  model,
+  ProductModel model,
 ) async {
   await showModalBottomSheet(
     context: context,

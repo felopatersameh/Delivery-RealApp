@@ -1,4 +1,5 @@
 import 'package:delivery/Core/Local/local_storage.dart';
+import 'package:delivery/Features/Orders/Cubit/order_cubit.dart';
 import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
 import 'package:delivery/Features/Splash/splash_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -44,7 +45,8 @@ class App extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => ProfileCubit()),
         BlocProvider(create: (context) => ProductsCubit()),
-        ],
+        BlocProvider(create: (context) => OrdersCubit()),
+      ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),
         minTextAdapt: true,

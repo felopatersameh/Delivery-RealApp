@@ -1,3 +1,4 @@
+import 'package:delivery/Features/Orders/Cubit/order_cubit.dart';
 import 'package:delivery/Features/Orders/order_page.dart';
 import 'package:delivery/Features/Products/cubit/products_cubit.dart';
 import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
@@ -17,9 +18,10 @@ class MainCubit extends Cubit<MainState> {
   List<BottomNavigationBarItem> bottomNavigationBarItem(BuildContext context) {
     final profile = context.read<ProfileCubit>().state;
     final product = context.read<ProductsCubit>().state;
+    final orders = context.read<OrdersCubit>().state;
     return [
       BottomNavigationBarItem(
-        icon: bottomNavIconWithBadge(0, Icons.shopping_basket_rounded),
+        icon: bottomNavIconWithBadge(orders.badge, Icons.shopping_basket_rounded),
         label: "Orders",
       ),
 
@@ -41,7 +43,7 @@ class MainCubit extends Cubit<MainState> {
   }
 
   List<Widget> screens = [
-    OrderPage(),
+    OrdersPage(),
     ProductsPage(),
     ProfilePage(),
     UsersPage(),

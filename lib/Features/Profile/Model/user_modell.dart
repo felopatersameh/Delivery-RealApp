@@ -28,6 +28,22 @@ class UserModell {
     required this.updatedAt,
   });
 
+  /// Create an empty user
+  factory UserModell.empty() {
+    return UserModell(
+      id: '',
+      name: '',
+      email: '',
+      phone: '',
+      password: '',
+      userType: UserType.client,
+      isActive: false,
+      createdAt: 0,
+      updatedAt: 0,
+    );
+  }
+
+  /// Create from map (e.g. from Firebase or DB)
   factory UserModell.fromMap(String id, Map<String, dynamic> map) {
     return UserModell(
       id: id,
@@ -44,8 +60,18 @@ class UserModell {
     );
   }
 
+  /// Create from JSON (for orders, no password)
+factory UserModell.fromJson(dynamic json) {
+  if (json is! Map) return UserModell.empty();
+
+  final map = json.map((key, value) => MapEntry(key.toString(), value));
+
+  return UserModell.fromMap(map['id'] ?? '', map);
+  }
+
   Map<String, dynamic> toMap() {
     return {
+        'id': id,
       'name': name,
       'email': email,
       'phone': phone,
@@ -59,7 +85,21 @@ class UserModell {
     };
   }
 
-  String toJson() => toMap().toString();
+  /// For orders JSON - without password
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'type': userType.name,
+      'tokenFCM': tokenFCM,
+      'photo': photo,
+      'isActive': isActive,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+    };
+  }
 
   UserModell copyWith({
     String? id,
@@ -94,4 +134,6 @@ class UserModell {
   Color get typeColor => userType.color;
   IconData get typeIcon => userType.icon;
   String get firstLetter => name.isNotEmpty ? name[0].toUpperCase() : '?';
+  bool get isEmpty => id.isEmpty;
+  bool get isNotEmpty => id.isNotEmpty;
 }

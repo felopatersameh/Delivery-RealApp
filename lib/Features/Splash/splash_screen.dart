@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:delivery/Core/Local/local_storage.dart';
 import 'package:delivery/Core/Local/local_storage_keys.dart';
+import 'package:delivery/Features/Orders/Cubit/order_cubit.dart';
 import 'package:delivery/Features/Products/cubit/products_cubit.dart';
 import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
@@ -66,12 +67,15 @@ class _SplashAppState extends State<SplashApp>
     if (passed) {
       _animationController.value = 0.5;
       if (!mounted) return;
-      await context.read<ProfileCubit>().init(); //* 2
+      await context.read<ProfileCubit>().init(); //* 1
       _animationController.value = 0.6;
       _animationController.value = 0.7;
       if (!mounted) return;
       await context.read<ProductsCubit>().init(); //* 2
       _animationController.value = 0.8;
+      _animationController.value = 0.85;
+      if (!mounted) return;
+      await context.read<OrdersCubit>().init(); //* 3
       _animationController.value = 0.9;
       _animationController.value = 1.0;
       if (mounted) {

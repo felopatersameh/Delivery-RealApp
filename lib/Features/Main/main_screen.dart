@@ -41,7 +41,7 @@ class MainScreen extends StatelessWidget {
               showUnselectedLabels: false,
             ),
             floatingActionButton:
-                ((type?.userType == UserType.admin) && state.index == 1)
+                ((type?.userType == UserType.vendor) && state.index == 1)
                 ? FloatingActionButton(
                     onPressed: () async => await _showAddProductBottomSheet(
                       context,

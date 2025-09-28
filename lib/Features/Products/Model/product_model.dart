@@ -1,51 +1,59 @@
+
 class ProductModel {
   final String id;
   final String vendorId;
   final String name;
   final String photo;
-  final double price;
   final int stockQuantity;
+  final double price;
 
   ProductModel({
     required this.id,
+    required this.vendorId,
     required this.name,
     required this.photo,
-    required this.price,
-    required this.vendorId,
     required this.stockQuantity,
+    required this.price,
   });
-  
   bool get isInStock => stockQuantity > 0;
 
-  ProductModel copyWith({
-    String? id,
-    String? vendorId,
-    String? name,
-    String? photo,
-    double? price,
-    int? stockQuantity,
-  }) {
+  factory ProductModel.fromJsonOrder(dynamic json) {
+    if (json is! Map) return ProductModel.empty();
+
+    final map = json.map((key, value) => MapEntry(key.toString(), value));
+
     return ProductModel(
-      id: id ?? this.id,
-      vendorId: vendorId ?? this.vendorId,
-      name: name ?? this.name,
-      photo: photo ?? this.photo,
-      price: price ?? this.price,
-      stockQuantity: stockQuantity ?? this.stockQuantity,
+      id: map['id'] ?? '',
+      vendorId: map['idAdmin'] ?? '',
+      name: map['name'] ?? '',
+      photo: map['photo'] ?? '',
+      stockQuantity: (map['stockQuantity'] as num?)?.toInt() ?? 0,
+      price: (map['price'] as num?)?.toDouble() ?? 0.0,
+    );
+  } 
+  
+ factory  ProductModel.fromJson(dynamic json ,Map<String , dynamic>map ) {
+  
+    return ProductModel(
+      id: map['id'] ?? '',
+      vendorId: map['idAdmin'] ?? '',
+      name: map['name'] ?? '',
+      photo: map['photo'] ?? '',
+      stockQuantity: (map['stockQuantity'] as num?)?.toInt() ?? 0,
+      price: (map['price'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
-factory ProductModel.fromJson(String id, Map<String, dynamic> json) {
-  return ProductModel(
-    id: id, 
-    vendorId: json['idAdmin'],
-    name: json['name'],
-    photo: json['photo'],
-    price: (json['price'] as num).toDouble(), 
-    stockQuantity: json['stockQuantity'],
-  );
-}
-
+  factory ProductModel.empty() {
+    return ProductModel(
+      id: '',
+      vendorId: '',
+      name: '',
+      photo: '',
+      stockQuantity: 0,
+      price: 0.0,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -53,8 +61,8 @@ factory ProductModel.fromJson(String id, Map<String, dynamic> json) {
       'idAdmin': vendorId,
       'name': name,
       'photo': photo,
-      'price': price,
       'stockQuantity': stockQuantity,
+      'price': price,
     };
   }
 }

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 enum UserType {
   client('Client', Colors.blue, Icons.person),
-  admin('Admin', Colors.red, Icons.admin_panel_settings),
-  vendor('Vendor', Colors.green, Icons.store),
-  moderator('Moderator', Colors.orange, Icons.supervised_user_circle);
+  vendor('vendor', Colors.red, Icons.store),
+  // vendor('Vendor', Colors.green, Icons.store),
+  delivery('delivery', Colors.orange, Icons.delivery_dining_sharp),
+  non('None', Colors.grey, Icons.block);
 
   const UserType(this.displayName, this.color, this.icon);
 
