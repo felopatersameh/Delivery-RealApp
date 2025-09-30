@@ -1,7 +1,5 @@
 import 'package:delivery/Core/Enum/user_type.dart';
 import 'package:delivery/Features/Orders/Cubit/order_cubit.dart';
-import 'package:delivery/Features/Orders/Models/order_model.dart';
-import 'package:delivery/Features/Orders/Models/order_product.dart';
 import 'package:delivery/Features/Products/Model/product_model.dart';
 import 'package:delivery/Features/Products/Widgets/product_item.dart';
 import 'package:delivery/Features/Products/cubit/products_cubit.dart';
@@ -12,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../Orders/Models/order_manager.dart';
+import '../Orders/Models/order_product.dart';
 
 class ProductsPage extends StatefulWidget {
   const ProductsPage({super.key});
@@ -45,7 +44,7 @@ class _ProductsPageState extends State<ProductsPage> {
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 160.w / (isVendor?250: 320).h,
+                childAspectRatio: 160.w / (isVendor ? 250 : 320).h,
                 crossAxisSpacing: 12.w,
                 mainAxisSpacing: 12.h,
               ),
@@ -68,7 +67,7 @@ class _ProductsPageState extends State<ProductsPage> {
                       bool added = await context
                           .read<OrdersCubit>()
                           .handleProductAdd(product, quantity);
-
+                      //* create New order
                       if (!added) {
                         final order = OrderManager.createOrder(
                           products: [
@@ -80,6 +79,7 @@ class _ProductsPageState extends State<ProductsPage> {
                         if (!context.mounted) return;
                         context.read<OrdersCubit>().createOrder(order);
                       }
+                      //* update Product Quantity
                       ProductModel editProductQuantity = product.copywith(
                         stockQuantity: product.stockQuantity - quantity,
                       );
@@ -89,7 +89,7 @@ class _ProductsPageState extends State<ProductsPage> {
                         editProductQuantity.toJson(),
                       );
                     },
-                    currentUserId: user!.id,
+                    currentUserId: user.id,
                     onDelete: (id) {
                       cubit.deleteProduct(id);
                     },

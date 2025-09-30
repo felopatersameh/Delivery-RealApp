@@ -110,7 +110,7 @@ class _ProductItemState extends State<ProductItem> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha:0.1),
             spreadRadius: 1,
             blurRadius: 6,
             offset: const Offset(0, 2),
@@ -182,7 +182,7 @@ class _ProductItemState extends State<ProductItem> {
                           borderRadius: BorderRadius.circular(12.r),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha:0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -251,8 +251,8 @@ class _ProductItemState extends State<ProductItem> {
                       ),
                       decoration: BoxDecoration(
                         color: widget.product.isInStock
-                            ? Colors.green.withOpacity(0.1)
-                            : Colors.red.withOpacity(0.1),
+                            ? Colors.green.withValues(alpha:0.1)
+                            : Colors.red.withValues(alpha:0.1),
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Text(

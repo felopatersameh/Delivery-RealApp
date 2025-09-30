@@ -7,6 +7,9 @@ import '../../../Core/Enum/order_status.dart';
 import '../../../Core/Enum/user_type.dart';
 import '../../../Core/Local/local_storage.dart';
 import '../../../Core/Local/local_storage_keys.dart';
+import '../../../Core/Notifications/get_tokens_f_c_m.dart';
+import '../../../Core/Notifications/notification_services.dart';
+import '../../../Core/Notifications/notifications_model.dart';
 import '../../../Features/Profile/Model/user_modell.dart';
 import '../../Products/Model/product_model.dart';
 import '../Models/order_manager.dart';
@@ -16,6 +19,7 @@ import 'order_state.dart';
 
 class OrdersCubit extends Cubit<OrdersState> {
   OrdersCubit() : super(const OrdersState());
+  NotificationServices notificationServices = NotificationServices();
 
   String? _listenerId;
   UserType? currentUserType;
@@ -79,7 +83,7 @@ class OrdersCubit extends Cubit<OrdersState> {
         .map((e) => e.orderID)
         .toList();
 
-      filteredOrders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    filteredOrders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     emit(
       state.copyWith(
@@ -135,7 +139,7 @@ class OrdersCubit extends Cubit<OrdersState> {
         LocalStorageKeys.idOrders,
         updatedOrders.map((e) => e.orderID).toList(),
       );
-        updatedOrders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      updatedOrders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
       emit(
         state.copyWith(
@@ -160,31 +164,116 @@ class OrdersCubit extends Cubit<OrdersState> {
 
       final order = state.orders![orderIndex];
       OrderModel updatedOrder;
-
+      List<String> tokens;
+      String title;
+      String titleUser='';
+      String body;
+      String bodyUser='';
+      List<String> tokenUser = [];
       switch (newStatus) {
+        //* user -> vendor
         case OrderStatus.removed:
           updatedOrder = order.cancelByClient();
-          state.orders?.removeWhere(
-            (order) => order.orderID == updatedOrder.orderID,
-          );
+          state.orders?.removeWhere((o) => o.orderID == updatedOrder.orderID);
           emit(state.copyWith(orders: state.orders));
+          tokens = await GetTokensFCM.getTokensByUserIds([
+            updatedOrder.vendorId.toString(),
+          ]);
+
+          title = "🚫 Order Cancelled";
+          body = "Client canceled order ${updatedOrder.shortId}";
           break;
+
+        //* vendor -> user
         case OrderStatus.rejected:
           updatedOrder = order.rejectByVendor(
             reason: reason ?? 'No reason provided',
           );
+          tokens = await GetTokensFCM.getTokensByUserIds([
+            updatedOrder.client.id.toString(),
+          ]);
+
+          title = "❌ Order Rejected";
+          body =
+              "Vendor rejected order ${updatedOrder.shortId}. Reason: $reason";
           break;
+
+        //* vendor -> (user && delivery)
         case OrderStatus.searching:
           updatedOrder = order.approveAndSearchDelivery();
+          tokenUser = await GetTokensFCM.getTokensByUserIds([
+            updatedOrder.client.id,
+          ]);
+          tokens = await GetTokensFCM.getTokensByUserType(
+            UserType.delivery.displayName.toLowerCase(),
+          );
+          titleUser = "🛒 Order Approved";
+          bodyUser =
+              "Vendor approved order ${updatedOrder.shortId}, searching for delivery now.";
+
+          title = "📦 New Order Available";
+          body = "Order ${updatedOrder.shortId} is now available ";
           break;
+
+        //* delivery -> (user && vendor)
         case OrderStatus.running:
           assignDeliveryAndStart(orderId, deliveryPerson!);
+          tokens = await GetTokensFCM.getTokensByUserIds([
+            order.client.id.toString(),
+          ]);
+          tokenUser = await GetTokensFCM.getTokensByUserIds([order.client.id]);
+          titleUser = "🚚 Order on the way";
+          bodyUser =
+              "Delivery person ${deliveryPerson.name} is heading to you with order ${order.shortId}.";
+
+          title = "🚚 Order on the way";
+          body =
+              "Delivery person ${deliveryPerson.name} is heading to you for order ${order.shortId}.";
           return;
+        //* delivery -> (user && vendor)
         case OrderStatus.finished:
           updatedOrder = order.markAsFinished();
+                    tokenUser = await GetTokensFCM.getTokensByUserIds([
+            updatedOrder.client.id,
+          ]);
+          tokens = await GetTokensFCM.getTokensByUserIds([
+            updatedOrder.client.id.toString(),
+            updatedOrder.vendorId.toString(),
+          ]);
+          titleUser = "✅ Order Delivered";
+          bodyUser = "Order ${updatedOrder.shortId} has been successfully delivered.";
+
+          title = "✅ Order Completed";
+          body = "Order ${updatedOrder.shortId} has been marked as completed.";
           break;
+
         default:
           updatedOrder = order.changeStatus(newStatus, reason: reason);
+          tokens = [];
+          tokenUser = [];
+           titleUser = "";
+          bodyUser = "";
+          title = "📌 Order Updated";
+          body = "Order ${updatedOrder.shortId} status updated.";
+      }
+
+      NotificationModel model = NotificationModel(title: title, body: body);
+
+      await notificationServices.sendNotification(
+        payloadData: model.toPayload(),
+        tokens: tokens,
+      );
+
+      if (tokenUser.isNotEmpty) {
+        NotificationModel modelUser = NotificationModel(
+          title: titleUser,
+          body: bodyUser,
+        );
+
+        await notificationServices.sendNotification(
+          payloadData: modelUser.toPayload(),
+          tokens: tokenUser,
+        );
       }
       await RealtimeFirebase.updateData(
         'orders/$orderId',
@@ -205,10 +294,23 @@ class OrdersCubit extends Cubit<OrdersState> {
 
       final order = state.orders![orderIndex];
       final updatedOrder = order.assignDeliveryAndStart(deliveryPerson);
-
       await RealtimeFirebase.updateData(
         'orders/$orderId',
         updatedOrder.toJson(),
+      );
+      final vendorToken = await GetTokensFCM.getTokensByUserIds([
+        order.vendorId.toString(),
+      ]);
+
+      final vendorNotification = NotificationModel(
+        title: "📦 Delivery Started",
+        body:
+            "Delivery person ${deliveryPerson.name} is delivering order ${order.shortId}.",
+      );
+
+      await notificationServices.sendNotification(
+        tokens: vendorToken,
+        payloadData: vendorNotification.toPayload(),
       );
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
@@ -267,6 +369,18 @@ class OrdersCubit extends Cubit<OrdersState> {
   Future<void> createOrder(OrderModel order) async {
     try {
       await RealtimeFirebase.create('orders', order.toJson());
+      NotificationModel model = NotificationModel(
+        title: "New Order",
+        body:
+            "${order.client.name.split(" ").first} is Recorded '${order.products.length}'Items in ${order.status}",
+      );
+      final tokens = await GetTokensFCM.getTokensByUserIds([
+        order.client.id.toString(),
+      ]);
+      await notificationServices.sendNotification(
+        payloadData: model.toPayload(),
+        tokens: tokens,
+      );
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }

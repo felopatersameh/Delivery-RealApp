@@ -122,8 +122,8 @@ class _OrderInvoiceState extends State<OrderInvoice> {
         boxShadow: [
           BoxShadow(
             color: widget.isNew
-                ? Colors.orange.withOpacity(0.15)
-                : Colors.grey.withOpacity(0.08),
+                ? Colors.orange.withValues(alpha:.15)
+                : Colors.grey.withValues(alpha:0.08),
             spreadRadius: widget.isNew ? 3 : 1,
             blurRadius: widget.isNew ? 12 : 8,
             offset: const Offset(0, 4),
@@ -173,7 +173,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                                 borderRadius: BorderRadius.circular(12.r),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.orange.withOpacity(0.4),
+                                    color: Colors.orange.withValues(alpha:0.4),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -256,10 +256,10 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                     vertical: 12.h,
                   ),
                   decoration: BoxDecoration(
-                    color: order.status.color.withOpacity(0.1),
+                    color: order.status.color.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(
-                      color: order.status.color.withOpacity(0.3),
+                      color: order.status.color.withValues(alpha:0.3),
                       width: 2,
                     ),
                   ),
@@ -272,7 +272,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                           borderRadius: BorderRadius.circular(10.r),
                           boxShadow: [
                             BoxShadow(
-                              color: order.status.color.withOpacity(0.4),
+                              color: order.status.color.withValues(alpha:0.4),
                               blurRadius: 8,
                               spreadRadius: 1,
                             ),
@@ -726,7 +726,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                                     borderRadius: BorderRadius.circular(10.r),
                                   ),
                                   elevation: 3,
-                                  shadowColor: color.withOpacity(0.4),
+                                  shadowColor: color.withValues(alpha:0.4),
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 16.w,
                                     vertical: 10.h,
@@ -771,7 +771,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
         border: Border.all(color: Colors.grey.shade300, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
+            color: Colors.grey.withValues(alpha:0.08),
             spreadRadius: 1,
             blurRadius: 6,
             offset: const Offset(0, 2),
@@ -828,7 +828,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                     border: Border.all(color: Colors.white, width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha:0.2),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),

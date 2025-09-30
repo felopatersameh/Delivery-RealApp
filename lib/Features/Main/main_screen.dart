@@ -1,4 +1,5 @@
 import 'package:delivery/Features/Products/cubit/products_cubit.dart';
+import 'package:delivery/Features/Profile/Model/user_modell.dart';
 import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:badges/badges.dart' as badges;
@@ -18,7 +19,7 @@ class MainScreen extends StatelessWidget {
       child: BlocBuilder<MainCubit, MainState>(
         builder: (context, state) {
           final cubit = context.read<MainCubit>();
-          final type = context.read<ProfileCubit>().state.me;
+          final user = context.read<ProfileCubit>().state.me;
           return Scaffold(
             backgroundColor: Colors.grey.shade300,
             appBar: AppBar(
@@ -41,12 +42,10 @@ class MainScreen extends StatelessWidget {
               showUnselectedLabels: false,
             ),
             floatingActionButton:
-                ((type?.userType == UserType.vendor) && state.index == 1)
+                ((user?.userType == UserType.vendor) && state.index == 1)
                 ? FloatingActionButton(
-                    onPressed: () async => await _showAddProductBottomSheet(
-                      context,
-                      type?.id ?? "0p0",
-                    ),
+                    onPressed: () async =>
+                        await _showAddProductBottomSheet(context, user!),
                     backgroundColor: Colors.blue.shade600,
                     foregroundColor: Colors.white,
                     child: const Icon(Icons.add),
@@ -71,16 +70,19 @@ Widget bottomNavIconWithBadge(int newUsersCount, IconData iconData) {
   );
 }
 
-Future<void> _showAddProductBottomSheet(BuildContext context, String id) async {
+Future<void> _showAddProductBottomSheet(
+  BuildContext context,
+  UserModell user,
+) async {
   await showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (context) => AddProductBottomSheet(
       onProductAdded: (newProduct) {
-        context.read<ProductsCubit>().addProduct(newProduct);
+        context.read<ProductsCubit>().addProduct(newProduct, user);
       },
-      currentUserId: id,
+      currentUserId: user.id,
     ),
   );
 }
