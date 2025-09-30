@@ -1,13 +1,14 @@
-import 'package:delivery/Features/Products/cubit/products_cubit.dart';
-import 'package:delivery/Features/Profile/Model/user_modell.dart';
-import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:badges/badges.dart' as badges;
-import '../../Core/Enum/user_type.dart';
-import '../Products/products.page.dart';
-import 'cubit/main_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../Core/Enum/user_type.dart';
+import '../Products/cubit/products_cubit.dart';
+import '../Products/products.page.dart';
+import '../Profile/Model/user_modell.dart';
+import '../Profile/cubit/profile_cubit.dart';
+import 'cubit/main_cubit.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});

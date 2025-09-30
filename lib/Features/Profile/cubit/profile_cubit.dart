@@ -1,7 +1,4 @@
-
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 import '../../../Core/Database/real_time_firbase.dart';
 import '../../../Core/Enum/user_type.dart';
@@ -22,7 +19,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       await _loadInitialUsers();
       _listenToUsersChanges();
     } catch (e) {
-      debugPrint('Error in init(): $e');
+      // debugPrint('Error in init(): $e');
     }
   }
 
@@ -50,8 +47,11 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
 
     final bool isMeClient = me.userType == UserType.client;
-    await LocalStorageService.setValue(LocalStorageKeys.statusUser,  me.userType.displayName.toString());
-    
+    await LocalStorageService.setValue(
+      LocalStorageKeys.statusUser,
+      me.userType.displayName.toString(),
+    );
+
     final List<String> newIds = allUsers
         .where((user) {
           if (isMeClient) {
@@ -116,7 +116,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         );
       },
       onError: (error) {
-        debugPrint('Listen to users failed: $error');
+        // debugPrint('Listen to users failed: $error');
       },
     );
   }
@@ -149,5 +149,4 @@ class ProfileCubit extends Cubit<ProfileState> {
     _stopListeningToUsers();
     return super.close();
   }
-
 }

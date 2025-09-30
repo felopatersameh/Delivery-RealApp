@@ -32,11 +32,6 @@ class NotificationModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'body': body,
-      'image': image,
-      'data': data,
-    };
+    return {'title': title, 'body': body, 'image': image, 'data': data};
   }
 }

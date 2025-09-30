@@ -1,10 +1,9 @@
-
 import 'dart:math';
 
-import 'package:delivery/Core/Enum/order_status.dart';
-import 'package:delivery/Core/Enum/user_type.dart';
-import 'package:delivery/Features/Orders/Models/order_product.dart';
-import 'package:delivery/Features/Profile/Model/user_modell.dart';
+import '../../../Core/Enum/order_status.dart';
+import '../../../Core/Enum/user_type.dart';
+import 'order_product.dart';
+import '../../Profile/Model/user_modell.dart';
 
 class OrderModel {
   final String orderID;
@@ -157,13 +156,15 @@ class OrderModel {
       delivery: deliveryPerson,
       status: OrderStatus.running,
       updatedAt: DateTime.now(),
-      numberOrderFinish: generateFourRandomDigitsString()
+      numberOrderFinish: generateFourRandomDigitsString(),
     );
   }
-String generateFourRandomDigitsString() {
-  final random = Random();
-  return List.generate(4, (_) => (2 + random.nextInt(3)).toString()).join();
-}
+
+  String generateFourRandomDigitsString() {
+    final random = Random();
+    return List.generate(4, (_) => (2 + random.nextInt(3)).toString()).join();
+  }
+
   /// Mark order as finished (delivered)
   OrderModel markAsFinished({String? deliveryNotes}) {
     if (status != OrderStatus.running) {
@@ -187,7 +188,8 @@ String generateFourRandomDigitsString() {
       products.fold(0, (sum, product) => sum + product.quantity);
 
   /// Check if order belongs to user
-  bool belongsToClient(String clientId) => client.id == clientId && status != OrderStatus.removed ;
+  bool belongsToClient(String clientId) =>
+      client.id == clientId && status != OrderStatus.removed;
   bool belongsToVendor(String vendorId) =>
       products.first.product.vendorId == vendorId;
   bool belongsToDelivery(String deliveryId) => delivery.id == deliveryId;
@@ -202,7 +204,6 @@ String generateFourRandomDigitsString() {
           if (status == OrderStatus.pending) {
             actions.add('Cancel Order');
           }
-         
         }
         break;
 

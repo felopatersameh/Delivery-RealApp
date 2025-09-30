@@ -1,8 +1,7 @@
 part of 'products_cubit.dart';
 
 @immutable
- class ProductsState {
-
+class ProductsState {
   final List<ProductModel>? products;
   final int badge;
   final List<String>? newProducstIds;
@@ -15,7 +14,7 @@ part of 'products_cubit.dart';
   ProductsState copyWith({
     List<ProductModel>? products,
     int? badge,
-    List<String>? newProducstIds, 
+    List<String>? newProducstIds,
   }) {
     return ProductsState(
       products: products ?? this.products,
@@ -23,5 +22,4 @@ part of 'products_cubit.dart';
       newProducstIds: newProducstIds ?? this.newProducstIds,
     );
   }
- }
-
+}

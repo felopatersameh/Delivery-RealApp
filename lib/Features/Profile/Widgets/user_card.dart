@@ -1,5 +1,5 @@
-import 'package:delivery/Core/Enum/user_type.dart';
-import 'package:delivery/Features/Profile/Model/user_modell.dart';
+import '../../../Core/Enum/user_type.dart';
+import '../Model/user_modell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -15,18 +15,18 @@ class UserCard extends StatelessWidget {
     required this.onUserTap,
   });
 
-String _formatJoinDate(int timestamp) {
-  final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-  final now = DateTime.now();
-  final difference = now.difference(date);
+  String _formatJoinDate(int timestamp) {
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    final now = DateTime.now();
+    final difference = now.difference(date);
 
-  if (difference.inDays < 1) {
-    return 'Joined today';
-  } else if (difference.inDays < 7) {
-    return 'Joined ${difference.inDays}d ago';
-  } else {
-    return 'Joined ${date.day}/${date.month}/${date.year}';
-  }
+    if (difference.inDays < 1) {
+      return 'Joined today';
+    } else if (difference.inDays < 7) {
+      return 'Joined ${difference.inDays}d ago';
+    } else {
+      return 'Joined ${date.day}/${date.month}/${date.year}';
+    }
   }
 
   @override
@@ -145,7 +145,7 @@ String _formatJoinDate(int timestamp) {
                                 vertical: 3.h,
                               ),
                               decoration: BoxDecoration(
-                                color: user.typeColor.withValues(alpha:0.1),
+                                color: user.typeColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
                               child: Text(
@@ -167,22 +167,22 @@ String _formatJoinDate(int timestamp) {
                         Row(
                           children: [
                             ...[
-                            Icon(
-                              Icons.phone,
-                              size: 14.sp,
-                              color: Colors.grey.shade500,
-                            ),
-                            SizedBox(width: 4.w),
-                            Expanded(
-                              child: Text(
-                                user.phone,
-                                style: TextStyle(
-                                  fontSize: 13.sp,
-                                  color: Colors.grey.shade600,
+                              Icon(
+                                Icons.phone,
+                                size: 14.sp,
+                                color: Colors.grey.shade500,
+                              ),
+                              SizedBox(width: 4.w),
+                              Expanded(
+                                child: Text(
+                                  user.phone,
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    color: Colors.grey.shade600,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ]
+                            ],
                           ],
                         ),
                         SizedBox(height: 4.h),

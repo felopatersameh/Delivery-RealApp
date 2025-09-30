@@ -1,9 +1,8 @@
-import 'package:delivery/Core/Enum/user_type.dart';
-import 'package:delivery/Features/Splash/Cubit/auth_cubit.dart';
-import 'package:delivery/Features/Splash/Cubit/auth_state.dart';
+import '../../Core/Enum/user_type.dart';
+import 'Cubit/auth_cubit.dart';
+import 'Cubit/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 
 Future<bool> showAuthDialog(BuildContext context) async {
   final formKey = GlobalKey<FormState>();
@@ -28,9 +27,9 @@ Future<bool> showAuthDialog(BuildContext context) async {
               passed = true;
               Navigator.pop(context);
             } else if (state is AuthError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
             }
           },
           builder: (context, state) {
@@ -64,9 +63,11 @@ Future<bool> showAuthDialog(BuildContext context) async {
                           if (isSignup)
                             TextFormField(
                               controller: nameController,
-                              decoration:
-                                  const InputDecoration(labelText: 'Name'),
-                              validator: (value) => value == null || value.isEmpty
+                              decoration: const InputDecoration(
+                                labelText: 'Name',
+                              ),
+                              validator: (value) =>
+                                  value == null || value.isEmpty
                                   ? 'Enter your name'
                                   : null,
                             ),
@@ -74,9 +75,12 @@ Future<bool> showAuthDialog(BuildContext context) async {
                           TextFormField(
                             controller: emailController,
                             keyboardType: TextInputType.emailAddress,
-                            decoration: const InputDecoration(labelText: 'Email'),
-                            validator: (value) =>
-                                value == null || value.isEmpty ? 'Enter email' : null,
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                            ),
+                            validator: (value) => value == null || value.isEmpty
+                                ? 'Enter email'
+                                : null,
                           ),
                           if (!isSignup) const SizedBox(height: 10),
                           if (isSignup)
@@ -86,7 +90,8 @@ Future<bool> showAuthDialog(BuildContext context) async {
                               decoration: const InputDecoration(
                                 labelText: 'Phone Number',
                               ),
-                              validator: (value) => value == null || value.isEmpty
+                              validator: (value) =>
+                                  value == null || value.isEmpty
                                   ? 'Enter phone number'
                                   : null,
                             ),
@@ -94,8 +99,11 @@ Future<bool> showAuthDialog(BuildContext context) async {
                           TextFormField(
                             controller: passwordController,
                             obscureText: true,
-                            decoration: const InputDecoration(labelText: 'Password'),
-                            validator: (value) => value == null || value.length < 6
+                            decoration: const InputDecoration(
+                              labelText: 'Password',
+                            ),
+                            validator: (value) =>
+                                value == null || value.length < 6
                                 ? 'Password must be at least 6 characters'
                                 : null,
                           ),
@@ -111,7 +119,10 @@ Future<bool> showAuthDialog(BuildContext context) async {
                                   value: userType,
                                   child: Row(
                                     children: [
-                                      Icon(userType.icon, color: userType.color),
+                                      Icon(
+                                        userType.icon,
+                                        color: userType.color,
+                                      ),
                                       const SizedBox(width: 10),
                                       Text(userType.displayName),
                                     ],

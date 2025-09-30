@@ -1,9 +1,9 @@
-import 'package:delivery/Core/Enum/user_type.dart';
-import 'package:delivery/Core/Local/local_storage.dart';
-import 'package:delivery/Features/Profile/Widgets/photo_user.dart';
-import 'package:delivery/Features/Profile/Widgets/profile_card.dart';
-import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
-import 'package:delivery/Features/Splash/splash_screen.dart';
+import '../../Core/Enum/user_type.dart';
+import '../../Core/Local/local_storage.dart';
+import 'Widgets/photo_user.dart';
+import 'Widgets/profile_card.dart';
+import 'cubit/profile_cubit.dart';
+import '../Splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -68,12 +68,12 @@ class ProfilePage extends StatelessWidget {
                     );
 
                     if (response && context.mounted) {
-                    await  LocalStorageService.clear();
+                      await LocalStorageService.clear();
                       if (context.mounted) {
                         Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => SplashApp()),
-                        (route) => false,
-                      );
+                          MaterialPageRoute(builder: (context) => SplashApp()),
+                          (route) => false,
+                        );
                       }
                     }
                   },

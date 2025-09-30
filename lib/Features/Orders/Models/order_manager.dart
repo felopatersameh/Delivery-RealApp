@@ -1,8 +1,8 @@
-import 'package:delivery/Core/Enum/order_status.dart';
-import 'package:delivery/Core/Enum/user_type.dart';
-import 'package:delivery/Features/Orders/Models/order_model.dart';
-import 'package:delivery/Features/Orders/Models/order_product.dart';
-import 'package:delivery/Features/Profile/Model/user_modell.dart';
+import '../../../Core/Enum/order_status.dart';
+import '../../../Core/Enum/user_type.dart';
+import 'order_model.dart';
+import 'order_product.dart';
+import '../../Profile/Model/user_modell.dart';
 
 class OrderManager {
   /// Create a new order
@@ -32,7 +32,7 @@ class OrderManager {
       notes: notes,
     );
   }
-  
+
   /// Get orders by status
   static List<OrderModel> filterOrdersByStatus(
     List<OrderModel> orders,
@@ -44,10 +44,10 @@ class OrderManager {
   /// Get orders for specific user
   static List<OrderModel> getOrdersForUser(
     List<OrderModel> orders,
-    String? userId, 
+    String? userId,
     UserType? userType,
   ) {
-     if (userId == null || userId.isEmpty ||userType ==null ) return [];
+    if (userId == null || userId.isEmpty || userType == null) return [];
     switch (userType) {
       case UserType.client:
         return orders.where((order) => order.belongsToClient(userId)).toList();

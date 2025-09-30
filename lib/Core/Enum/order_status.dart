@@ -25,7 +25,11 @@ enum OrderStatus {
   bool canTransitionTo(OrderStatus newStatus) {
     switch (this) {
       case OrderStatus.pending:
-        return [OrderStatus.removed, OrderStatus.rejected, OrderStatus.searching].contains(newStatus);
+        return [
+          OrderStatus.removed,
+          OrderStatus.rejected,
+          OrderStatus.searching,
+        ].contains(newStatus);
       case OrderStatus.searching:
         return [OrderStatus.running, OrderStatus.rejected].contains(newStatus);
       case OrderStatus.running:
@@ -41,7 +45,11 @@ enum OrderStatus {
   List<OrderStatus> getAllowedTransitions() {
     switch (this) {
       case OrderStatus.pending:
-        return [OrderStatus.removed, OrderStatus.rejected, OrderStatus.searching];
+        return [
+          OrderStatus.removed,
+          OrderStatus.rejected,
+          OrderStatus.searching,
+        ];
       case OrderStatus.searching:
         return [OrderStatus.running, OrderStatus.rejected];
       case OrderStatus.running:
@@ -52,14 +60,20 @@ enum OrderStatus {
   }
 
   // Check if status is final (cannot be changed)
-  bool get isFinal => [OrderStatus.removed, OrderStatus.rejected, OrderStatus.finished].contains(this);
+  bool get isFinal => [
+    OrderStatus.removed,
+    OrderStatus.rejected,
+    OrderStatus.finished,
+  ].contains(this);
 
   // Check if order is active
-  bool get isActive => [OrderStatus.searching, OrderStatus.running].contains(this);
+  bool get isActive =>
+      [OrderStatus.searching, OrderStatus.running].contains(this);
 
   // Check if order is completed
   bool get isCompleted => this == OrderStatus.finished;
 
   // Check if order is cancelled
-  bool get isCancelled => [OrderStatus.removed, OrderStatus.rejected].contains(this);
+  bool get isCancelled =>
+      [OrderStatus.removed, OrderStatus.rejected].contains(this);
 }

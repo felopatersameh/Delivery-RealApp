@@ -16,7 +16,7 @@ class ProfileState {
     List<UserModell>? allUsers,
     UserModell? me,
     int? badge,
-    List<String>? newUserIds, 
+    List<String>? newUserIds,
   }) {
     return ProfileState(
       allUsers: allUsers ?? this.allUsers,

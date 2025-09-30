@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:bloc/bloc.dart';
-import 'package:delivery/Core/Notifications/get_tokens_f_c_m.dart';
-import 'package:delivery/Features/Profile/Model/user_modell.dart';
+import '../../../Core/Notifications/get_tokens_f_c_m.dart';
+import '../../Profile/Model/user_modell.dart';
 import 'package:flutter/material.dart';
 import '../../../Core/Database/real_time_firbase.dart';
 import '../../../Core/Enum/user_type.dart';
@@ -25,7 +25,7 @@ class ProductsCubit extends Cubit<ProductsState> {
       await _loadInitialProducts();
       _listenToProductChanges();
     } catch (e) {
-      debugPrint('Error loading products: $e');
+      // debugPrint('Error loading products: $e');
     }
   }
 
@@ -162,9 +162,17 @@ class ProductsCubit extends Cubit<ProductsState> {
 
   Future<void> addProduct(ProductModel product, UserModell user) async {
     await RealtimeFirebase.create('products', product.toJson());
-    NotificationModel model = NotificationModel(title: "New Products", body: "${user.name} is Created ${product.name}" ,);
-    final tokens =await GetTokensFCM.getTokensByUserType(UserType.client.displayName.toLowerCase());
-    await notificationServices.sendNotification(payloadData: model.toPayload(),tokens:tokens );
+    NotificationModel model = NotificationModel(
+      title: "New Products",
+      body: "${user.name} is Created ${product.name}",
+    );
+    final tokens = await GetTokensFCM.getTokensByUserType(
+      UserType.client.displayName.toLowerCase(),
+    );
+    await notificationServices.sendNotification(
+      payloadData: model.toPayload(),
+      tokens: tokens,
+    );
   }
 
   Future<void> updateProduct(
@@ -172,7 +180,6 @@ class ProductsCubit extends Cubit<ProductsState> {
     Map<String, dynamic> updates,
   ) async {
     await RealtimeFirebase.updateData('products/$productId', updates);
-    
   }
 
   void resetBadge() {

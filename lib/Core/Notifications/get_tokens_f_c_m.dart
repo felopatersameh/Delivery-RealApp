@@ -1,7 +1,6 @@
-
-import 'package:delivery/Core/Database/real_time_firbase.dart';
-import 'package:delivery/Core/Local/local_storage.dart';
-import 'package:delivery/Core/Local/local_storage_keys.dart';
+import '../Database/real_time_firbase.dart';
+import '../Local/local_storage.dart';
+import '../Local/local_storage_keys.dart';
 
 class GetTokensFCM {
   static Future<List<String>> getAllUserFcmTokens() async {
@@ -41,8 +40,7 @@ class GetTokensFCM {
         if (token.isNotEmpty) {
           tokens.add(token.toString());
         }
-      }else {
-      }
+      } else {}
     }
 
     return tokens;

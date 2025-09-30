@@ -1,13 +1,14 @@
-import 'package:delivery/Core/Local/local_storage.dart';
-import 'package:delivery/Features/Orders/Cubit/order_cubit.dart';
-import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
-import 'package:delivery/Features/Splash/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
+
+import 'Core/Local/local_storage.dart';
+import 'Features/Orders/Cubit/order_cubit.dart';
+import 'Features/Profile/cubit/profile_cubit.dart';
+import 'Features/Splash/splash_screen.dart';
 
 import 'Core/Database/real_time_firbase.dart';
 import 'Core/Notifications/notification_services.dart';
@@ -33,7 +34,7 @@ void main() async {
 
 @pragma('vm:entry-point')
 Future<void> handlerOnBackgroundMessage(RemoteMessage onData) async {
-  debugPrint("onMessage:: ${onData.notification?.toMap()}");
+  // debugPrint("onMessage:: ${onData.notification?.toMap()}");
 }
 
 class App extends StatelessWidget {

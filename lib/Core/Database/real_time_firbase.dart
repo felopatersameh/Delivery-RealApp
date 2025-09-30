@@ -37,14 +37,14 @@ class RealtimeFirebase {
     try {
       final ref = _database!.ref(path);
       final newRef = ref.push();
-      
+
       final dataWithTimestamps = {
         ...data,
         'createdAt': DateTime.now().millisecondsSinceEpoch,
         'updatedAt': DateTime.now().millisecondsSinceEpoch,
-        'id':newRef.key
+        'id': newRef.key,
       };
-      
+
       await newRef.set(dataWithTimestamps);
       return newRef.key!;
     } catch (e) {
@@ -84,7 +84,10 @@ class RealtimeFirebase {
   }
 
   /// Update specific fields at path
-  static Future<void> updateData(String path, Map<String, dynamic> updates) async {
+  static Future<void> updateData(
+    String path,
+    Map<String, dynamic> updates,
+  ) async {
     _checkInitialization();
     try {
       final ref = _database!.ref(path);
@@ -120,9 +123,9 @@ class RealtimeFirebase {
     String? listenerId,
   }) {
     _checkInitialization();
-    
+
     final id = listenerId ?? '${path}_${DateTime.now().millisecondsSinceEpoch}';
-    
+
     try {
       final ref = _database!.ref(path);
       final subscription = ref.onValue.listen(
@@ -137,7 +140,7 @@ class RealtimeFirebase {
           }
         },
       );
-      
+
       _listeners[id] = subscription;
       return id;
     } catch (e) {
@@ -231,9 +234,10 @@ class RealtimeFirebase {
     String? listenerId,
   }) {
     _checkInitialization();
-    
-    final id = listenerId ?? 'query_${path}_${DateTime.now().millisecondsSinceEpoch}';
-    
+
+    final id =
+        listenerId ?? 'query_${path}_${DateTime.now().millisecondsSinceEpoch}';
+
     try {
       DatabaseReference ref = _database!.ref(path);
       Query query = ref;
@@ -275,7 +279,7 @@ class RealtimeFirebase {
           }
         },
       );
-      
+
       _listeners[id] = subscription;
       return id;
     } catch (e) {
@@ -290,7 +294,7 @@ class RealtimeFirebase {
     try {
       final ref = _database!.ref();
       final timestampedUpdates = <String, dynamic>{};
-      
+
       updates.forEach((path, value) {
         if (value is Map<String, dynamic>) {
           timestampedUpdates[path] = {
@@ -326,11 +330,15 @@ class RealtimeFirebase {
   static Map<String, String> get serverTimestamp => {'.sv': 'timestamp'};
 
   /// Listen to connection state changes
-  static String onConnectionState(Function(bool isConnected) callback, {String? listenerId}) {
+  static String onConnectionState(
+    Function(bool isConnected) callback, {
+    String? listenerId,
+  }) {
     _checkInitialization();
-    
-    final id = listenerId ?? 'connection_${DateTime.now().millisecondsSinceEpoch}';
-    
+
+    final id =
+        listenerId ?? 'connection_${DateTime.now().millisecondsSinceEpoch}';
+
     try {
       final ref = _database!.ref('.info/connected');
       final subscription = ref.onValue.listen(
@@ -343,7 +351,7 @@ class RealtimeFirebase {
           callback(false);
         },
       );
-      
+
       _listeners[id] = subscription;
       return id;
     } catch (e) {
@@ -381,7 +389,9 @@ class RealtimeFirebase {
   /// Private method to check initialization
   static void _checkInitialization() {
     if (!isInitialized) {
-      throw Exception('RealtimeFirebase not initialized. Call RealtimeFirebase.initialize() first.');
+      throw Exception(
+        'RealtimeFirebase not initialized. Call RealtimeFirebase.initialize() first.',
+      );
     }
   }
 
@@ -412,14 +422,14 @@ class RealtimeFirebase {
 
   /// Push multiple items at once
   static Future<List<String>> pushMultiple(
-    String path, 
+    String path,
     List<Map<String, dynamic>> items,
   ) async {
     _checkInitialization();
     try {
       final ref = _database!.ref(path);
       final keys = <String>[];
-      
+
       for (final item in items) {
         final newRef = ref.push();
         final dataWithTimestamps = {
@@ -430,7 +440,7 @@ class RealtimeFirebase {
         await newRef.set(dataWithTimestamps);
         keys.add(newRef.key!);
       }
-      
+
       return keys;
     } catch (e) {
       developer.log('Push multiple failed: $e');

@@ -1,4 +1,4 @@
-import 'package:delivery/Features/Products/Model/product_model.dart';
+import '../Model/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -60,9 +60,9 @@ class _ProductItemState extends State<ProductItem> {
     }
   }
 
-  void _deleteProduct() async{
+  void _deleteProduct() async {
     // Show confirmation dialog
-   await showDialog(
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -83,10 +83,10 @@ class _ProductItemState extends State<ProductItem> {
               ),
             ),
             ElevatedButton(
-              onPressed: () async{
+              onPressed: () async {
                 Navigator.of(context).pop();
                 if (widget.onDelete != null) {
-                await widget.onDelete!(widget.product.id);
+                  await widget.onDelete!(widget.product.id);
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -110,7 +110,7 @@ class _ProductItemState extends State<ProductItem> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha:0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 6,
             offset: const Offset(0, 2),
@@ -166,7 +166,7 @@ class _ProductItemState extends State<ProductItem> {
                             ),
                     ),
                   ),
-        
+
                   // Owner Badge
                   if (isOwner)
                     Positioned(
@@ -182,7 +182,7 @@ class _ProductItemState extends State<ProductItem> {
                           borderRadius: BorderRadius.circular(12.r),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha:0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -208,7 +208,7 @@ class _ProductItemState extends State<ProductItem> {
                 ],
               ),
             ),
-        
+
             // Product Info
             Expanded(
               flex: 5,
@@ -228,9 +228,9 @@ class _ProductItemState extends State<ProductItem> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-        
+
                     SizedBox(height: 4.h),
-        
+
                     // Price
                     Text(
                       '\$${widget.product.price.toStringAsFixed(2)}',
@@ -240,9 +240,9 @@ class _ProductItemState extends State<ProductItem> {
                         color: Colors.blue,
                       ),
                     ),
-        
+
                     SizedBox(height: 4.h),
-        
+
                     // Stock Status
                     Container(
                       padding: EdgeInsets.symmetric(
@@ -251,8 +251,8 @@ class _ProductItemState extends State<ProductItem> {
                       ),
                       decoration: BoxDecoration(
                         color: widget.product.isInStock
-                            ? Colors.green.withValues(alpha:0.1)
-                            : Colors.red.withValues(alpha:0.1),
+                            ? Colors.green.withValues(alpha: 0.1)
+                            : Colors.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Text(
@@ -268,9 +268,9 @@ class _ProductItemState extends State<ProductItem> {
                         ),
                       ),
                     ),
-        
+
                     SizedBox(height: 8.h),
-        
+
                     // Action Buttons Section
                     if (isOwner) ...[
                       // Owner Controls (Edit & Delete)
@@ -405,9 +405,9 @@ class _ProductItemState extends State<ProductItem> {
                           ),
                         ],
                       ),
-        
+
                       SizedBox(height: 8.h),
-        
+
                       // Add to Order Button
                       SizedBox(
                         width: double.infinity,

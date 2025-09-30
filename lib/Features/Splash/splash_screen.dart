@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:delivery/Core/Local/local_storage.dart';
-import 'package:delivery/Core/Local/local_storage_keys.dart';
-import 'package:delivery/Features/Orders/Cubit/order_cubit.dart';
-import 'package:delivery/Features/Products/cubit/products_cubit.dart';
-import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
+import '../../Core/Local/local_storage.dart';
+import '../../Core/Local/local_storage_keys.dart';
+import '../Orders/Cubit/order_cubit.dart';
+import '../Products/cubit/products_cubit.dart';
+import '../Profile/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

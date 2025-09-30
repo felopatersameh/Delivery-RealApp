@@ -1,9 +1,9 @@
-import 'package:delivery/Core/Enum/user_type.dart';
-import 'package:delivery/Features/Orders/Cubit/order_cubit.dart';
-import 'package:delivery/Features/Products/Model/product_model.dart';
-import 'package:delivery/Features/Products/Widgets/product_item.dart';
-import 'package:delivery/Features/Products/cubit/products_cubit.dart';
-import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
+import '../../Core/Enum/user_type.dart';
+import '../Orders/Cubit/order_cubit.dart';
+import 'Model/product_model.dart';
+import 'Widgets/product_item.dart';
+import 'cubit/products_cubit.dart';
+import '../Profile/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

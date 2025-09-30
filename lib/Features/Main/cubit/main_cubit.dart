@@ -1,8 +1,8 @@
-import 'package:delivery/Features/Orders/Cubit/order_cubit.dart';
-import 'package:delivery/Features/Orders/order_page.dart';
-import 'package:delivery/Features/Products/cubit/products_cubit.dart';
-import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
-import 'package:delivery/Features/Profile/profile_page.dart';
+import '../../Orders/Cubit/order_cubit.dart';
+import '../../Orders/order_page.dart';
+import '../../Products/cubit/products_cubit.dart';
+import '../../Profile/cubit/profile_cubit.dart';
+import '../../Profile/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,10 +15,10 @@ part 'main_state.dart';
 
 class MainCubit extends Cubit<MainState> {
   MainCubit() : super(MainState());
-  bool typeCheck =false;
+  bool typeCheck = false;
   List<BottomNavigationBarItem> bottomNavigationBarItem(BuildContext context) {
     final profile = context.read<ProfileCubit>().state;
-     typeCheck = profile.me!.userType != UserType.delivery;
+    typeCheck = profile.me!.userType != UserType.delivery;
     final product = context.read<ProductsCubit>().state;
     final orders = context.read<OrdersCubit>().state;
     return [

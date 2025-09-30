@@ -1,4 +1,4 @@
-import 'package:delivery/Core/Enum/user_type.dart';
+import '../../../Core/Enum/user_type.dart';
 import 'package:flutter/material.dart';
 
 class UserModell {
@@ -61,17 +61,17 @@ class UserModell {
   }
 
   /// Create from JSON (for orders, no password)
-factory UserModell.fromJson(dynamic json) {
-  if (json is! Map) return UserModell.empty();
+  factory UserModell.fromJson(dynamic json) {
+    if (json is! Map) return UserModell.empty();
 
-  final map = json.map((key, value) => MapEntry(key.toString(), value));
+    final map = json.map((key, value) => MapEntry(key.toString(), value));
 
-  return UserModell.fromMap(map['id'] ?? '', map);
+    return UserModell.fromMap(map['id'] ?? '', map);
   }
 
   Map<String, dynamic> toMap() {
     return {
-        'id': id,
+      'id': id,
       'name': name,
       'email': email,
       'phone': phone,

@@ -1,8 +1,8 @@
-import 'package:delivery/Core/Enum/user_type.dart';
-import 'package:delivery/Features/Profile/Model/user_modell.dart';
-import 'package:delivery/Features/Profile/Widgets/alphabetical_user_list.dart';
-import 'package:delivery/Features/Profile/Widgets/search_results_list.dart';
-import 'package:delivery/Features/Profile/cubit/profile_cubit.dart';
+import '../../Core/Enum/user_type.dart';
+import 'Model/user_modell.dart';
+import 'Widgets/alphabetical_user_list.dart';
+import 'Widgets/search_results_list.dart';
+import 'cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PhotoUser extends StatelessWidget {
-  const PhotoUser({
-    super.key,
-    required this.photo,
-    required this.name,
-  });
+  const PhotoUser({super.key, required this.photo, required this.name});
 
   final String photo;
   final String name;

@@ -1,8 +1,8 @@
-import 'package:delivery/Features/Products/Model/product_model.dart';
+import '../../Products/Model/product_model.dart';
 
 class OrderProduct {
   final ProductModel product;
-   int quantity;
+  int quantity;
 
   OrderProduct({required this.product, required this.quantity});
   double get totalPrice => product.price * quantity;

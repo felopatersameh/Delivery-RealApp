@@ -1,7 +1,6 @@
 // orders_cubit.dart
 import 'dart:developer';
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
 import '../../../Core/Database/real_time_firbase.dart';
 import '../../../Core/Enum/order_status.dart';
 import '../../../Core/Enum/user_type.dart';
@@ -48,7 +47,7 @@ class OrdersCubit extends Cubit<OrdersState> {
           errorMessage: 'Error loading orders: $e',
         ),
       );
-      debugPrint('Error loading orders: $e');
+      // debugPrint('Error loading orders: $e');
     }
   }
 
@@ -166,9 +165,9 @@ class OrdersCubit extends Cubit<OrdersState> {
       OrderModel updatedOrder;
       List<String> tokens;
       String title;
-      String titleUser='';
+      String titleUser = '';
       String body;
-      String bodyUser='';
+      String bodyUser = '';
       List<String> tokenUser = [];
       switch (newStatus) {
         //* user -> vendor
@@ -233,7 +232,7 @@ class OrdersCubit extends Cubit<OrdersState> {
         //* delivery -> (user && vendor)
         case OrderStatus.finished:
           updatedOrder = order.markAsFinished();
-                    tokenUser = await GetTokensFCM.getTokensByUserIds([
+          tokenUser = await GetTokensFCM.getTokensByUserIds([
             updatedOrder.client.id,
           ]);
           tokens = await GetTokensFCM.getTokensByUserIds([
@@ -241,7 +240,8 @@ class OrdersCubit extends Cubit<OrdersState> {
             updatedOrder.vendorId.toString(),
           ]);
           titleUser = "✅ Order Delivered";
-          bodyUser = "Order ${updatedOrder.shortId} has been successfully delivered.";
+          bodyUser =
+              "Order ${updatedOrder.shortId} has been successfully delivered.";
 
           title = "✅ Order Completed";
           body = "Order ${updatedOrder.shortId} has been marked as completed.";
@@ -251,7 +251,7 @@ class OrdersCubit extends Cubit<OrdersState> {
           updatedOrder = order.changeStatus(newStatus, reason: reason);
           tokens = [];
           tokenUser = [];
-           titleUser = "";
+          titleUser = "";
           bodyUser = "";
           title = "📌 Order Updated";
           body = "Order ${updatedOrder.shortId} status updated.";

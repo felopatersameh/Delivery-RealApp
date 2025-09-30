@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:delivery/Core/Enum/user_type.dart';
+import '../../../Core/Enum/user_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -122,8 +122,8 @@ class _OrderInvoiceState extends State<OrderInvoice> {
         boxShadow: [
           BoxShadow(
             color: widget.isNew
-                ? Colors.orange.withValues(alpha:.15)
-                : Colors.grey.withValues(alpha:0.08),
+                ? Colors.orange.withValues(alpha: .15)
+                : Colors.grey.withValues(alpha: 0.08),
             spreadRadius: widget.isNew ? 3 : 1,
             blurRadius: widget.isNew ? 12 : 8,
             offset: const Offset(0, 4),
@@ -154,56 +154,52 @@ class _OrderInvoiceState extends State<OrderInvoice> {
             ),
             child: Column(
               children: [
-              if (widget.isNew) 
-                          ...[
-                            Align(
-                            alignment: AlignmentGeometry.bottomLeft,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 10.w,
-                                vertical: 3.h,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.orange.shade600,
-                                    Colors.deepOrange,
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(12.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.orange.withValues(alpha:0.4),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.fiber_new,
-                                    size: 14.sp,
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    'NEW',
-                                    style: TextStyle(
-                                      fontSize: 11.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                if (widget.isNew) ...[
+                  Align(
+                    alignment: AlignmentGeometry.bottomLeft,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 3.h,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.orange.shade600, Colors.deepOrange],
+                        ),
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange.withValues(alpha: 0.4),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.fiber_new,
+                            size: 14.sp,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            'NEW',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
                             ),
                           ),
-                          SizedBox(height: 10.h,)
-                          ],
-                        
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+                ],
+
                 // Invoice number and NEW badge
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -225,16 +221,15 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                             letterSpacing: 1.5,
                           ),
                         ),
-
                       ],
                     ),
-                    
+
                     Expanded(
                       child: Align(
                         alignment: AlignmentGeometry.centerRight,
                         child: Text(
                           '#${order.shortId}',
-                          maxLines:2 ,
+                          maxLines: 2,
                           style: TextStyle(
                             fontSize: 22.sp,
                             fontWeight: FontWeight.bold,
@@ -256,10 +251,10 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                     vertical: 12.h,
                   ),
                   decoration: BoxDecoration(
-                    color: order.status.color.withValues(alpha:0.1),
+                    color: order.status.color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(
-                      color: order.status.color.withValues(alpha:0.3),
+                      color: order.status.color.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -272,7 +267,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                           borderRadius: BorderRadius.circular(10.r),
                           boxShadow: [
                             BoxShadow(
-                              color: order.status.color.withValues(alpha:0.4),
+                              color: order.status.color.withValues(alpha: 0.4),
                               blurRadius: 8,
                               spreadRadius: 1,
                             ),
@@ -706,7 +701,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                           ),
                       ],
                       // Action Buttons
-                      if (widget.allowedActions.isNotEmpty ) ...[
+                      if (widget.allowedActions.isNotEmpty) ...[
                         SizedBox(height: 16.h),
                         Wrap(
                           spacing: 10.w,
@@ -726,7 +721,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                                     borderRadius: BorderRadius.circular(10.r),
                                   ),
                                   elevation: 3,
-                                  shadowColor: color.withValues(alpha:0.4),
+                                  shadowColor: color.withValues(alpha: 0.4),
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 16.w,
                                     vertical: 10.h,
@@ -771,7 +766,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
         border: Border.all(color: Colors.grey.shade300, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha:0.08),
+            color: Colors.grey.withValues(alpha: 0.08),
             spreadRadius: 1,
             blurRadius: 6,
             offset: const Offset(0, 2),
@@ -828,7 +823,7 @@ class _OrderInvoiceState extends State<OrderInvoice> {
                     border: Border.all(color: Colors.white, width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),

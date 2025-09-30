@@ -19,7 +19,6 @@ class LocalStorageService {
     }
 
     try {
-     
       LocalStorageService.enableLogging = enableLogging;
       _box = await Hive.openBox(boxName.trim());
 

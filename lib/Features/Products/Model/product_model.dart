@@ -15,7 +15,7 @@ class ProductModel {
     required this.photo,
     required this.stockQuantity,
     required this.price,
-    required this.createdAt ,
+    required this.createdAt,
     required this.updatedAt,
   });
   bool get isInStock => stockQuantity > 0;
@@ -58,8 +58,8 @@ class ProductModel {
       photo: '',
       stockQuantity: 0,
       price: 0.0,
-      createdAt:  DateTime.fromMillisecondsSinceEpoch( 0),
-      updatedAt:  DateTime.fromMillisecondsSinceEpoch( 0),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
     );
   }
 
@@ -71,7 +71,7 @@ class ProductModel {
       'photo': photo,
       'stockQuantity': stockQuantity,
       'price': price,
-       'createdAt': createdAt.millisecondsSinceEpoch,
+      'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
     };
   }

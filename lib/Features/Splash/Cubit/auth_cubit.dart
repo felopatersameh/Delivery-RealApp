@@ -1,7 +1,7 @@
-import 'package:delivery/Core/Enum/user_type.dart';
-import 'package:delivery/Core/Local/local_storage.dart';
-import 'package:delivery/Core/Local/local_storage_keys.dart';
-import 'package:delivery/Features/Splash/Cubit/auth_state.dart';
+import '../../../Core/Enum/user_type.dart';
+import '../../../Core/Local/local_storage.dart';
+import '../../../Core/Local/local_storage_keys.dart';
+import 'auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../Core/Database/real_time_firbase.dart';
