@@ -8,25 +8,30 @@ import '../../../Core/Enum/user_type.dart';
 import '../../../Core/Local/local_storage.dart';
 import '../../../Core/Local/local_storage_keys.dart';
 import '../../../Features/Profile/Model/user_modell.dart';
+import '../../Products/Model/product_model.dart';
+import '../Models/order_manager.dart';
 import '../Models/order_model.dart';
+import '../Models/order_product.dart';
 import 'order_state.dart';
 
 class OrdersCubit extends Cubit<OrdersState> {
   OrdersCubit() : super(const OrdersState());
 
   String? _listenerId;
-  UserType? _currentUserType;
-  String? _currentUserId;
+  UserType? currentUserType;
+  String? currentUserId;
 
   Future<void> init() async {
     try {
       emit(state.copyWith(isLoading: true));
 
-      _currentUserId = await LocalStorageService.getValue(
+      currentUserId = await LocalStorageService.getValue(
         LocalStorageKeys.idUser,
       );
-      final userTypeString = UserType.delivery.displayName;
-      _currentUserType = UserType.fromName(userTypeString);
+      final userTypeString = await LocalStorageService.getValue(
+        LocalStorageKeys.statusUser,
+      );
+      currentUserType = UserType.fromName(userTypeString);
 
       await _loadInitialOrders();
       _listenToOrderChanges();
@@ -61,9 +66,11 @@ class OrdersCubit extends Cubit<OrdersState> {
       return OrderModel.fromJson(key, map);
     }).toList();
     // Filter orders based on user type
-    final filteredOrders = _filterOrdersForUser(allOrders);
-    log("filteredOrders:: ${filteredOrders.length}");
-
+    final filteredOrders = OrderManager.getOrdersForUser(
+      allOrders,
+      currentUserId,
+      currentUserType,
+    );
     final allIds = filteredOrders.map((e) => e.orderID).toList();
     await LocalStorageService.setValue(LocalStorageKeys.idOrders, allIds);
 
@@ -71,6 +78,8 @@ class OrdersCubit extends Cubit<OrdersState> {
         .where((order) => !oldIds.contains(order.orderID))
         .map((e) => e.orderID)
         .toList();
+
+      filteredOrders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     emit(
       state.copyWith(
@@ -97,7 +106,11 @@ class OrdersCubit extends Cubit<OrdersState> {
       }).toList();
 
       // Filter orders based on user type
-      final updatedOrders = _filterOrdersForUser(allUpdatedOrders);
+      final updatedOrders = OrderManager.getOrdersForUser(
+        allUpdatedOrders,
+        currentUserId,
+        currentUserType,
+      );
 
       final newIds = updatedOrders
           .where((order) => !oldIds.contains(order.orderID))
@@ -122,6 +135,7 @@ class OrdersCubit extends Cubit<OrdersState> {
         LocalStorageKeys.idOrders,
         updatedOrders.map((e) => e.orderID).toList(),
       );
+        updatedOrders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
       emit(
         state.copyWith(
@@ -133,40 +147,12 @@ class OrdersCubit extends Cubit<OrdersState> {
     }, onError: (error) => log('Order listen error: $error'));
   }
 
-  List<OrderModel> _filterOrdersForUser(List<OrderModel> allOrders) {
-    if (_currentUserType == null || _currentUserId == null) return [];
-    switch (_currentUserType!) {
-      case UserType.non:
-        return [];
-      case UserType.client:
-        // Client sees only their own orders
-        return allOrders
-            .where((order) => order.belongsToClient(_currentUserId!))
-            .toList();
-
-      case UserType.vendor:
-        // Vendor sees orders for their products only
-        return allOrders
-            .where((order) => order.belongsToVendor(_currentUserId!))
-            .toList();
-
-      case UserType.delivery:
-        // Delivery sees orders that are searching OR assigned to them
-        return allOrders
-            .where(
-              (order) =>
-                  order.status == OrderStatus.searching ||
-                  order.belongsToDelivery(_currentUserId!),
-            )
-            .toList();
-    }
-  }
-
   // Order management methods
   Future<void> updateOrderStatus(
     String orderId,
     OrderStatus newStatus, {
     String? reason,
+    UserModell? deliveryPerson,
   }) async {
     try {
       final orderIndex = state.orders?.indexWhere((o) => o.orderID == orderId);
@@ -178,6 +164,10 @@ class OrdersCubit extends Cubit<OrdersState> {
       switch (newStatus) {
         case OrderStatus.removed:
           updatedOrder = order.cancelByClient();
+          state.orders?.removeWhere(
+            (order) => order.orderID == updatedOrder.orderID,
+          );
+          emit(state.copyWith(orders: state.orders));
           break;
         case OrderStatus.rejected:
           updatedOrder = order.rejectByVendor(
@@ -188,7 +178,7 @@ class OrdersCubit extends Cubit<OrdersState> {
           updatedOrder = order.approveAndSearchDelivery();
           break;
         case OrderStatus.running:
-          // This requires delivery assignment - handled separately
+          assignDeliveryAndStart(orderId, deliveryPerson!);
           return;
         case OrderStatus.finished:
           updatedOrder = order.markAsFinished();
@@ -196,7 +186,6 @@ class OrdersCubit extends Cubit<OrdersState> {
         default:
           updatedOrder = order.changeStatus(newStatus, reason: reason);
       }
-
       await RealtimeFirebase.updateData(
         'orders/$orderId',
         updatedOrder.toJson(),
@@ -226,6 +215,55 @@ class OrdersCubit extends Cubit<OrdersState> {
     }
   }
 
+  Future<bool> handleProductAdd(ProductModel product, int quantity) async {
+    final orders = state.orders;
+    final pendingOrders = orders
+        ?.where((o) => o.status == OrderStatus.pending)
+        .toList();
+
+    if (pendingOrders?.isEmpty == true) {
+      // No pending order → create new
+      return false;
+    }
+
+    OrderModel? existing;
+
+    for (var order in pendingOrders!) {
+      if (order.vendorId == product.vendorId) {
+        existing = order;
+        break;
+      }
+    }
+
+    if (existing != null) {
+      bool found = false;
+
+      for (var p in existing.products) {
+        if (p.product.id == product.id) {
+          p.quantity += quantity;
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        existing.products.add(
+          OrderProduct(product: product, quantity: quantity),
+        );
+      }
+
+      // Update the order in Firebase
+      await RealtimeFirebase.updateData(
+        'orders/${existing.orderID}',
+        existing.toJson(),
+      );
+
+      return true;
+    }
+
+    return false; // Vendor mismatch → create new
+  }
+
   Future<void> createOrder(OrderModel order) async {
     try {
       await RealtimeFirebase.create('orders', order.toJson());
@@ -238,8 +276,8 @@ class OrdersCubit extends Cubit<OrdersState> {
 
   // Get user-specific allowed actions
   List<String> getAllowedActionsForOrder(OrderModel order) {
-    if (_currentUserType == null || _currentUserId == null) return [];
-    return order.getAllowedActionsForUser(_currentUserType!, _currentUserId!);
+    if (currentUserType == null || currentUserId == null) return [];
+    return order.getAllowedActionsForUser(currentUserType!, currentUserId!);
   }
 
   @override

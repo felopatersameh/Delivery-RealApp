@@ -9,7 +9,7 @@ class OrderManager {
   static OrderModel createOrder({
     required List<OrderProduct> products,
     required UserModell client,
-    String? vendorId,
+    required String? vendorId,
     String? notes,
   }) {
     final totalPrice = products.fold(
@@ -24,6 +24,7 @@ class OrderManager {
       products: products,
       client: client,
       vendorId: vendorId,
+      rejectionReason: "",
       delivery: UserModell.empty(),
       status: OrderStatus.pending,
       createdAt: now,
@@ -31,7 +32,7 @@ class OrderManager {
       notes: notes,
     );
   }
-
+  
   /// Get orders by status
   static List<OrderModel> filterOrdersByStatus(
     List<OrderModel> orders,
@@ -43,9 +44,10 @@ class OrderManager {
   /// Get orders for specific user
   static List<OrderModel> getOrdersForUser(
     List<OrderModel> orders,
-    String userId,
-    UserType userType,
+    String? userId, 
+    UserType? userType,
   ) {
+     if (userId == null || userId.isEmpty ||userType ==null ) return [];
     switch (userType) {
       case UserType.client:
         return orders.where((order) => order.belongsToClient(userId)).toList();
@@ -61,7 +63,7 @@ class OrderManager {
             .toList();
 
       case UserType.non:
-        return [] ;
+        return [];
     }
   }
 

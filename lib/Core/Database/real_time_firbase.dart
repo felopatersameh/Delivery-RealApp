@@ -42,6 +42,7 @@ class RealtimeFirebase {
         ...data,
         'createdAt': DateTime.now().millisecondsSinceEpoch,
         'updatedAt': DateTime.now().millisecondsSinceEpoch,
+        'id':newRef.key
       };
       
       await newRef.set(dataWithTimestamps);

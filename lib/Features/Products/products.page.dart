@@ -1,3 +1,4 @@
+import 'package:delivery/Core/Enum/user_type.dart';
 import 'package:delivery/Features/Orders/Cubit/order_cubit.dart';
 import 'package:delivery/Features/Orders/Models/order_model.dart';
 import 'package:delivery/Features/Orders/Models/order_product.dart';
@@ -34,6 +35,7 @@ class _ProductsPageState extends State<ProductsPage> {
   @override
   Widget build(BuildContext context) {
     final user = context.read<ProfileCubit>().state.me;
+    final isVendor = user!.userType == UserType.vendor;
     return BlocBuilder<ProductsCubit, ProductsState>(
       builder: (context, state) {
         final cubit = context.read<ProductsCubit>();
@@ -43,7 +45,7 @@ class _ProductsPageState extends State<ProductsPage> {
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.55,
+                childAspectRatio: 160.w / (isVendor?250: 320).h,
                 crossAxisSpacing: 12.w,
                 mainAxisSpacing: 12.h,
               ),
@@ -61,16 +63,31 @@ class _ProductsPageState extends State<ProductsPage> {
                       : null,
                   child: ProductItem(
                     product: state.products![index],
-                    onAddToOrder: (product, quantity) {
-                      final order = OrderManager.createOrder(
-                        products: [
-                          OrderProduct(product: product, quantity: quantity),
-                        ],
-                        client: user,
-                        vendorId: '',
-                      );
+                    onAddToOrder: (product, quantity) async {
+                      if (quantity > product.stockQuantity) return;
+                      bool added = await context
+                          .read<OrdersCubit>()
+                          .handleProductAdd(product, quantity);
 
-                      context.read<OrdersCubit>().createOrder(order);
+                      if (!added) {
+                        final order = OrderManager.createOrder(
+                          products: [
+                            OrderProduct(product: product, quantity: quantity),
+                          ],
+                          client: user,
+                          vendorId: product.vendorId,
+                        );
+                        if (!context.mounted) return;
+                        context.read<OrdersCubit>().createOrder(order);
+                      }
+                      ProductModel editProductQuantity = product.copywith(
+                        stockQuantity: product.stockQuantity - quantity,
+                      );
+                      if (!context.mounted) return;
+                      context.read<ProductsCubit>().updateProduct(
+                        product.id,
+                        editProductQuantity.toJson(),
+                      );
                     },
                     currentUserId: user!.id,
                     onDelete: (id) {
@@ -164,11 +181,13 @@ class _AddProductBottomSheetState extends State<AddProductBottomSheet> {
 
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(seconds: 1)); // simulate delay
-
+    final now = DateTime.now();
     final updatedProduct = ProductModel(
+      createdAt: widget.productToEdit?.createdAt ?? now,
+      updatedAt: now,
       id: isEditing
           ? widget.productToEdit!.id
-          : DateTime.now().millisecondsSinceEpoch.toString(),
+          : now.millisecondsSinceEpoch.toString(),
       name: _nameController.text.trim(),
       photo: _photoController.text.trim(),
       price: double.parse(_priceController.text),

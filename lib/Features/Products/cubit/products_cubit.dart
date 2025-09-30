@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import '../../../Core/Database/real_time_firbase.dart';
+import '../../../Core/Enum/user_type.dart';
 import '../../../Core/Local/local_storage.dart';
 import '../../../Core/Local/local_storage_keys.dart';
 import '../Model/product_model.dart';
@@ -12,6 +13,7 @@ class ProductsCubit extends Cubit<ProductsState> {
   ProductsCubit() : super(const ProductsState());
 
   String? _listenerId;
+  UserType? currentUserType;
 
   Future<void> init() async {
     try {
@@ -22,98 +24,120 @@ class ProductsCubit extends Cubit<ProductsState> {
     }
   }
 
-  Future<void> _loadInitialProducts() async {
-    final idUser = await LocalStorageService.getValue(LocalStorageKeys.idUser);
-    final List<String> oldIds = List<String>.from(
-      await LocalStorageService.getValue(
-        LocalStorageKeys.idProducts,
-        defaultValue: [],
-      ),
-    );
+Future<void> _loadInitialProducts() async {
+  final idUser = await LocalStorageService.getValue(LocalStorageKeys.idUser);
+  final String typeUser = await LocalStorageService.getValue(LocalStorageKeys.statusUser);
+  currentUserType = UserType.fromName(typeUser);
 
-    final data = await RealtimeFirebase.getData('products');
+  final List<String> oldIds = List<String>.from(
+    await LocalStorageService.getValue(
+      LocalStorageKeys.idProducts,
+      defaultValue: [],
+    ),
+  );
+
+  final data = await RealtimeFirebase.getData('products');
+  final raw = Map<String, dynamic>.from(data ?? {});
+
+  final allProducts = raw.entries.map((entry) {
+    final key = entry.key;
+    final map = Map<String, dynamic>.from(entry.value);
+    return ProductModel.fromJson(key, map);
+  }).toList();
+
+  // فلترة المنتجات حسب نوع المستخدم
+  List<ProductModel> filteredProducts = [];
+
+  if (currentUserType == UserType.client) {
+    filteredProducts = allProducts.where((p) => p.vendorId != idUser).toList();
+  } else if (currentUserType == UserType.vendor) {
+    filteredProducts = allProducts.where((p) => p.vendorId == idUser).toList();
+  } else {
+    // غير مسموح لأي نوع آخر
+    filteredProducts = [];
+  }
+
+  final allIds = filteredProducts.map((e) => e.id).toList();
+  final addedIds = filteredProducts
+      .where((p) => !oldIds.contains(p.id))
+      .map((e) => e.id)
+      .toList();
+
+  await LocalStorageService.setValue(LocalStorageKeys.idProducts, allIds);
+    //  filteredProducts.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+  emit(
+    state.copyWith(
+      products: filteredProducts,
+      badge: addedIds.length,
+      newProducstIds: addedIds,
+    ),
+  );
+}
+
+void _listenToProductChanges() async {
+  final idUser = await LocalStorageService.getValue(LocalStorageKeys.idUser);
+  final String typeUser = await LocalStorageService.getValue(LocalStorageKeys.statusUser);
+  currentUserType = UserType.fromName(typeUser);
+
+  _listenerId = RealtimeFirebase.listen('products', (data, _) async {
+    final oldProducts = state.products ?? [];
+    final oldIds = oldProducts.map((e) => e.id).toSet();
+
     final raw = Map<String, dynamic>.from(data ?? {});
-
-    final products = raw.entries.map((entry) {
+    final allUpdated = raw.entries.map((entry) {
       final key = entry.key;
       final map = Map<String, dynamic>.from(entry.value);
       return ProductModel.fromJson(key, map);
     }).toList();
 
-    final allIds = products.map((e) => e.id).toList();
-    await LocalStorageService.setValue(LocalStorageKeys.idProducts, allIds);
+    // فلترة حسب نوع المستخدم
+    List<ProductModel> updatedProducts = [];
 
-    final addedIds = products
-        .where(
-          (product) =>
-              !oldIds.contains(product.id) && product.vendorId != idUser,
-        )
+    if (currentUserType == UserType.client) {
+      updatedProducts = allUpdated.where((p) => p.vendorId != idUser).toList();
+    } else if (currentUserType == UserType.vendor) {
+      updatedProducts = allUpdated.where((p) => p.vendorId == idUser).toList();
+    } else {
+      updatedProducts = [];
+    }
+
+    final updatedIds = updatedProducts.map((e) => e.id).toSet();
+    final removedIds = oldIds.difference(updatedIds).toList();
+
+    final newIds = updatedProducts
+        .where((p) => !oldIds.contains(p.id))
         .map((e) => e.id)
         .toList();
 
+    final bool hasAddition = newIds.isNotEmpty;
+    final bool hasDeletion = removedIds.isNotEmpty;
+    final bool hasModification = updatedProducts.any((newProduct) {
+      final oldProduct = oldProducts.firstWhere(
+        (e) => e.id == newProduct.id,
+        orElse: () => newProduct,
+      );
+      return oldProduct.toJson().toString() != newProduct.toJson().toString();
+    });
+
+    if (!(hasAddition || hasDeletion || hasModification)) {
+      return;
+    }
+
+    await LocalStorageService.setValue(
+      LocalStorageKeys.idProducts,
+      updatedProducts.map((e) => e.id).toList(),
+    );
+      updatedProducts.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     emit(
       state.copyWith(
-        products: products,
-        badge: addedIds.length,
-        newProducstIds: addedIds,
+        products: updatedProducts,
+        badge: newIds.length,
+        newProducstIds: newIds,
       ),
     );
-  }
-
-  void _listenToProductChanges() async {
-    final idUser = await LocalStorageService.getValue(LocalStorageKeys.idUser);
-
-    _listenerId = RealtimeFirebase.listen('products', (data, _) async {
-      final oldProducts = state.products ?? [];
-      final oldIds = oldProducts.map((e) => e.id).toSet();
-
-      final raw = Map<String, dynamic>.from(data ?? {});
-      final updatedIds = raw.keys.toSet();
-
-      final removedIds = oldIds.difference(updatedIds).toList();
-
-      final updatedProducts = raw.entries.map((entry) {
-        final key = entry.key;
-        final map = Map<String, dynamic>.from(entry.value);
-        return ProductModel.fromJson(key, map);
-      }).toList();
-
-      final newIds = updatedProducts
-          .where(
-            (product) =>
-                !oldIds.contains(product.id) && product.vendorId != idUser,
-          )
-          .map((e) => e.id)
-          .toList();
-
-      final bool hasAddition = newIds.isNotEmpty;
-      final bool hasDeletion = removedIds.isNotEmpty;
-      final bool hasModification = updatedProducts.any((newProduct) {
-        final oldProduct = oldProducts.firstWhere(
-          (e) => e.id == newProduct.id,
-          orElse: () => newProduct,
-        );
-        return oldProduct.toJson().toString() != newProduct.toJson().toString();
-      });
-
-      if (!(hasAddition || hasDeletion || hasModification)) {
-        return;
-      }
-
-      await LocalStorageService.setValue(
-        LocalStorageKeys.idProducts,
-        updatedProducts.map((e) => e.id).toList(),
-      );
-
-      emit(
-        state.copyWith(
-          products: updatedProducts,
-          badge: newIds.length,
-          newProducstIds: newIds,
-        ),
-      );
-    }, onError: (error) => log('Product listen error: $error'));
-  }
+  }, onError: (error) => log('Product listen error: $error'));
+}
 
   Future<void> deleteProduct(String productId) async {
     await RealtimeFirebase.deleteData('products/$productId');

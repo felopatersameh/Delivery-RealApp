@@ -1,3 +1,6 @@
+
+import 'dart:math';
+
 import 'package:delivery/Core/Enum/order_status.dart';
 import 'package:delivery/Core/Enum/user_type.dart';
 import 'package:delivery/Features/Orders/Models/order_product.dart';
@@ -15,40 +18,43 @@ class OrderModel {
   final DateTime updatedAt;
   final String? notes;
   final String? rejectionReason;
+  final String? numberOrderFinish;
 
   OrderModel({
     required this.orderID,
     required this.totalPrice,
     required this.products,
     required this.client,
-     this.vendorId,
+    this.vendorId,
     required this.delivery,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
     this.notes,
     this.rejectionReason,
+    this.numberOrderFinish,
   });
 
-factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
-  return OrderModel(
-    orderID: json['orderID'] ?? orderId ?? '',
-    totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0.0,
-    products: (json['products'] as List<dynamic>?)
-            ?.map((p) => OrderProduct.fromJson(p))
-            .toList() ??
-        [],
-    client: UserModell.fromJson(json['client']),
-    vendorId: json['vendorId'] ?? '',
-    delivery: UserModell.fromJson(json['delivery']),
-    status: OrderStatus.fromValue(json['status'] ?? 'pending'),
-    createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] ?? 0),
-    updatedAt: DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] ?? 0),
-    notes: json['notes'] ?? "_",
-    rejectionReason: json['rejectionReason'] ?? "_",
-  );
-}
-
+  factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
+    return OrderModel(
+      orderID: json['orderID'] ?? orderId ?? '',
+      totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0.0,
+      products:
+          (json['products'] as List<dynamic>?)
+              ?.map((p) => OrderProduct.fromJson(p))
+              .toList() ??
+          [],
+      client: UserModell.fromJson(json['client']),
+      vendorId: json['vendorId'] ?? '',
+      delivery: UserModell.fromJson(json['delivery']),
+      status: OrderStatus.fromValue(json['status'] ?? 'pending'),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt'] ?? 0),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(json['updatedAt'] ?? 0),
+      notes: json['notes'] ?? "_",
+      rejectionReason: json['rejectionReason'] ?? "_",
+      numberOrderFinish: json['numberOrderFinish'],
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -60,8 +66,9 @@ factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
       'status': status.value,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
-      'notes': notes?? "",
-      'rejectionReason': rejectionReason ??"",
+      'notes': notes ?? "",
+      'rejectionReason': rejectionReason ?? "",
+      'numberOrderFinish': numberOrderFinish,
     };
   }
 
@@ -77,6 +84,7 @@ factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
     DateTime? updatedAt,
     String? notes,
     String? rejectionReason,
+    String? numberOrderFinish,
   }) {
     return OrderModel(
       orderID: orderID ?? this.orderID,
@@ -90,20 +98,25 @@ factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
       updatedAt: updatedAt ?? DateTime.now(),
       notes: notes ?? this.notes,
       rejectionReason: rejectionReason ?? this.rejectionReason,
+      numberOrderFinish: numberOrderFinish ?? this.numberOrderFinish,
     );
   }
 
   // Status Management Methods
-  
+
   /// Change order status with validation
   OrderModel changeStatus(OrderStatus newStatus, {String? reason}) {
     if (!status.canTransitionTo(newStatus)) {
-      throw Exception('Cannot change status from ${status.displayName} to ${newStatus.displayName}');
+      throw Exception(
+        'Cannot change status from ${status.displayName} to ${newStatus.displayName}',
+      );
     }
-    
+
     return copyWith(
       status: newStatus,
-      rejectionReason: newStatus == OrderStatus.rejected ? reason : rejectionReason,
+      rejectionReason: newStatus == OrderStatus.rejected
+          ? reason
+          : rejectionReason,
       updatedAt: DateTime.now(),
     );
   }
@@ -119,7 +132,9 @@ factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
   /// Vendor rejects the order
   OrderModel rejectByVendor({required String reason}) {
     if (![OrderStatus.pending, OrderStatus.searching].contains(status)) {
-      throw Exception('Order can only be rejected from pending or searching status');
+      throw Exception(
+        'Order can only be rejected from pending or searching status',
+      );
     }
     return changeStatus(OrderStatus.rejected, reason: reason);
   }
@@ -137,13 +152,18 @@ factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
     if (status != OrderStatus.searching) {
       throw Exception('Order must be in searching status to assign delivery');
     }
+
     return copyWith(
       delivery: deliveryPerson,
       status: OrderStatus.running,
       updatedAt: DateTime.now(),
+      numberOrderFinish: generateFourRandomDigitsString()
     );
   }
-
+String generateFourRandomDigitsString() {
+  final random = Random();
+  return List.generate(4, (_) => (2 + random.nextInt(3)).toString()).join();
+}
   /// Mark order as finished (delivered)
   OrderModel markAsFinished({String? deliveryNotes}) {
     if (status != OrderStatus.running) {
@@ -159,14 +179,17 @@ factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
   // Utility Methods
 
   /// Get order short ID (first 8 characters)
-  String get shortId => 'ORD_${orderID.length > 8 ? orderID.substring(0, 8) : orderID}';
+  String get shortId =>
+      'ORD_${orderID.length > 8 ? orderID.substring(0, 8) : orderID}';
 
   /// Get total items count
-  int get totalItems => products.fold(0, (sum, product) => sum + product.quantity);
+  int get totalItems =>
+      products.fold(0, (sum, product) => sum + product.quantity);
 
   /// Check if order belongs to user
-  bool belongsToClient(String clientId) => client.id == clientId;
-  bool belongsToVendor(String vendorId) => products.first.product.vendorId == vendorId;
+  bool belongsToClient(String clientId) => client.id == clientId && status != OrderStatus.removed ;
+  bool belongsToVendor(String vendorId) =>
+      products.first.product.vendorId == vendorId;
   bool belongsToDelivery(String deliveryId) => delivery.id == deliveryId;
 
   /// Get allowed actions for user type
@@ -179,9 +202,7 @@ factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
           if (status == OrderStatus.pending) {
             actions.add('Cancel Order');
           }
-          if (status == OrderStatus.running) {
-            actions.add('Mark as Received');
-          }
+         
         }
         break;
 
@@ -196,7 +217,7 @@ factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
         }
         break;
 
-        case UserType.non :
+      case UserType.non:
         break;
 
       case UserType.delivery:
@@ -255,6 +276,6 @@ factory OrderModel.fromJson(String? orderId, Map<String, dynamic> json) {
 
   @override
   String toString() {
-    return 'Order(${shortId}, ${status.displayName}, \$${totalPrice.toStringAsFixed(2)})';
+    return 'Order($shortId, ${status.displayName}, \$${totalPrice.toStringAsFixed(2)})';
   }
 }

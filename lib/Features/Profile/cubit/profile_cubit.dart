@@ -50,7 +50,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
 
     final bool isMeClient = me.userType == UserType.client;
-
+    await LocalStorageService.setValue(LocalStorageKeys.statusUser,  me.userType.displayName.toString());
+    
     final List<String> newIds = allUsers
         .where((user) {
           if (isMeClient) {

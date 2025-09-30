@@ -6,6 +6,7 @@ import 'package:delivery/Features/Profile/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../Core/Enum/user_type.dart';
 import '../../Products/products.page.dart';
 import '../../Profile/users_page.dart';
 import '../main_screen.dart';
@@ -14,24 +15,28 @@ part 'main_state.dart';
 
 class MainCubit extends Cubit<MainState> {
   MainCubit() : super(MainState());
-
+  bool typeCheck =false;
   List<BottomNavigationBarItem> bottomNavigationBarItem(BuildContext context) {
     final profile = context.read<ProfileCubit>().state;
+     typeCheck = profile.me!.userType != UserType.delivery;
     final product = context.read<ProductsCubit>().state;
     final orders = context.read<OrdersCubit>().state;
     return [
       BottomNavigationBarItem(
-        icon: bottomNavIconWithBadge(orders.badge, Icons.shopping_basket_rounded),
+        icon: bottomNavIconWithBadge(
+          orders.badge,
+          Icons.shopping_basket_rounded,
+        ),
         label: "Orders",
       ),
+      if (typeCheck)
+        BottomNavigationBarItem(
+          icon: bottomNavIconWithBadge(product.badge, Icons.store_rounded),
+          label: "Products",
+        ),
 
       BottomNavigationBarItem(
-        icon: bottomNavIconWithBadge(product.badge, Icons.store_rounded),
-        label: "Products",
-      ),
-
-      BottomNavigationBarItem(
-        icon:bottomNavIconWithBadge(0, Icons.person_2_rounded) ,
+        icon: bottomNavIconWithBadge(0, Icons.person_2_rounded),
         label: "Profile",
       ),
 
@@ -42,16 +47,16 @@ class MainCubit extends Cubit<MainState> {
     ];
   }
 
-  List<Widget> screens = [
+  List<Widget> get screens => [
     OrdersPage(),
-    ProductsPage(),
+    if (typeCheck) ProductsPage(),
     ProfilePage(),
     UsersPage(),
   ];
 
-  List<String> nameScreens = [
+  List<String> get nameScreens => [
     "Orders",
-    "Products",
+    if (typeCheck) "Products",
     "Profile",
     "Users Management",
   ];
