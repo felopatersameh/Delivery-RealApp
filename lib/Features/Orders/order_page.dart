@@ -1,4 +1,6 @@
+import '../../Core/Enum/message_type.dart';
 import '../../Core/Functions/order_dialogs.dart';
+import '../../Core/Functions/show_message_snack_bar.dart';
 import 'Widgets/empty_orders_widget.dart';
 import 'Widgets/order_invoice.dart';
 import '../Profile/cubit/profile_cubit.dart';
@@ -58,16 +60,20 @@ class OrdersPage extends StatelessWidget {
   ) async {
     final cubit = context.read<OrdersCubit>();
     final me = context.read<ProfileCubit>().state.me!;
-
-    switch (action) {
+    await  showMessageSnackBar(
+        context,
+        title: "Loading....",
+        type: MessageType.loading,
+        onLoading: ()async {
+            switch (action) {
       case 'Cancel Order':
-        _showCancelDialog(context, order);
+      await  _showCancelDialog(context, order);
         break;
       case 'Accept Order':
         cubit.updateOrderStatus(order.orderID, OrderStatus.searching);
         break;
       case 'Reject Order':
-        _showRejectDialog(context, order);
+       await _showRejectDialog(context, order);
         break;
       case 'Accept Delivery':
         await cubit.updateOrderStatus(
@@ -88,9 +94,18 @@ class OrdersPage extends StatelessWidget {
         }
         break;
     }
+        },
+      );
+    if (!context.mounted) return;
+      showMessageSnackBar(
+        context,
+        title: "$action successFully ",
+        type: MessageType.success,
+      );
   }
 
-  void _showCancelDialog(BuildContext context, OrderModel order) async {
+
+  Future<void> _showCancelDialog(BuildContext context, OrderModel order) async {
     final confirmed = await OrderDialogs.confirmDialog(
       context: context,
       title: 'Cancel Order',
@@ -105,9 +120,10 @@ class OrdersPage extends StatelessWidget {
         OrderStatus.removed,
       );
     }
+   
   }
 
-  void _showRejectDialog(BuildContext context, OrderModel order) async {
+   Future<void> _showRejectDialog(BuildContext context, OrderModel order) async {
     final reason = await OrderDialogs.inputReasonDialog(
       context: context,
       title: 'Reject Order ${order.orderID}',
@@ -117,7 +133,7 @@ class OrdersPage extends StatelessWidget {
     );
 
     if (reason != null && reason.isNotEmpty && context.mounted) {
-      context.read<OrdersCubit>().updateOrderStatus(
+      await context.read<OrdersCubit>().updateOrderStatus(
         order.orderID,
         OrderStatus.rejected,
         reason: reason,

@@ -173,6 +173,7 @@ class OrdersCubit extends Cubit<OrdersState> {
         //* user -> vendor
         case OrderStatus.removed:
           updatedOrder = order.cancelByClient();
+          await deleteProductFromOrderAndUpdateProduct(updatedOrder.products);
           state.orders?.removeWhere((o) => o.orderID == updatedOrder.orderID);
           emit(state.copyWith(orders: state.orders));
           tokens = await GetTokensFCM.getTokensByUserIds([
@@ -191,7 +192,7 @@ class OrdersCubit extends Cubit<OrdersState> {
           tokens = await GetTokensFCM.getTokensByUserIds([
             updatedOrder.client.id.toString(),
           ]);
-
+          await deleteProductFromOrderAndUpdateProduct(updatedOrder.products);
           title = "❌ Order Rejected";
           body =
               "Vendor rejected order ${updatedOrder.shortId}. Reason: $reason";
@@ -317,6 +318,27 @@ class OrdersCubit extends Cubit<OrdersState> {
     }
   }
 
+  Future<void> deleteProductFromOrderAndUpdateProduct(
+    List<OrderProduct> orders,
+  ) async {
+    List<ProductModel> modelProducts = [];
+    for (var element in orders) {
+      final data = await RealtimeFirebase.getData('products/${element.product.id}');
+      final quantity = element.quantity;
+      final instock = data['stockQuantity'];
+      final product = (element.product).copywith(
+        stockQuantity: instock + quantity,
+      );
+      modelProducts.add(product);
+    }
+    for (var element in modelProducts) {
+      await RealtimeFirebase.updateData(
+        'products/${element.id}',
+        element.toJson(),
+      );
+    }
+  }
+
   Future<bool> handleProductAdd(ProductModel product, int quantity) async {
     final orders = state.orders;
     final pendingOrders = orders
@@ -375,7 +397,7 @@ class OrdersCubit extends Cubit<OrdersState> {
             "${order.client.name.split(" ").first} is Recorded '${order.products.length}'Items in ${order.status}",
       );
       final tokens = await GetTokensFCM.getTokensByUserIds([
-        order.client.id.toString(),
+        order.vendorId.toString(),
       ]);
       await notificationServices.sendNotification(
         payloadData: model.toPayload(),

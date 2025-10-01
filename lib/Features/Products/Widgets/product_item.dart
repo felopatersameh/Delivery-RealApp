@@ -6,7 +6,7 @@ class ProductItem extends StatefulWidget {
   final ProductModel product;
   final String? currentUserId; // Current user ID to check ownership
   final Function(ProductModel product, int quantity)? onAddToOrder;
-  final Function(String productId)?
+  final Function(ProductModel product)?
   onDelete; // Delete callback returns product ID
   final Function(ProductModel product)?
   onEdit; // Edit callback returns full product data
@@ -86,7 +86,7 @@ class _ProductItemState extends State<ProductItem> {
               onPressed: () async {
                 Navigator.of(context).pop();
                 if (widget.onDelete != null) {
-                  await widget.onDelete!(widget.product.id);
+                  await widget.onDelete!(widget.product);
                 }
               },
               style: ElevatedButton.styleFrom(

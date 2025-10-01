@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 
 import 'Core/Local/local_storage.dart';
+import 'Core/Notifications/flutter_local_notifications.dart';
 import 'Features/Orders/Cubit/order_cubit.dart';
 import 'Features/Profile/cubit/profile_cubit.dart';
 import 'Features/Splash/splash_screen.dart';
@@ -22,6 +23,7 @@ void main() async {
   //*Init Firbase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   //* Notifications
+  await LocalNotificationService.initialize();
   final NotificationServices notificationServices = NotificationServices();
   await notificationServices.initFCM();
   FirebaseMessaging.onBackgroundMessage(handlerOnBackgroundMessage);
@@ -35,6 +37,17 @@ void main() async {
 @pragma('vm:entry-point')
 Future<void> handlerOnBackgroundMessage(RemoteMessage onData) async {
   // debugPrint("onMessage:: ${onData.notification?.toMap()}");
+ final notification = onData.notification;
+
+  if (notification != null) {
+    final title = notification.title ?? 'No Title';
+    final body = notification.body ?? 'No Body';
+
+   await LocalNotificationService.showNotification(
+      title: title,
+      body: body,
+    );
+  }
 }
 
 class App extends StatelessWidget {

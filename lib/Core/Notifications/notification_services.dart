@@ -1,66 +1,105 @@
-import 'package:dio/dio.dart';
 import 'dart:convert';
-
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-
 import '../Local/local_storage.dart';
 import '../Local/local_storage_keys.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:googleapis_auth/auth_io.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:dio/dio.dart';
+
+import 'flutter_local_notifications.dart';
 
 class NotificationServices {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final Dio _dio = Dio();
 
-  initFCM() async {
+  Future<void> initFCM() async {
     await _firebaseMessaging.requestPermission();
     final tokenFCM = await _firebaseMessaging.getToken();
-    LocalStorageService.setValue(LocalStorageKeys.tokenFCM, tokenFCM);
-    debugPrint("tokenFCM:: $tokenFCM");
-
-    FirebaseMessaging.onMessageOpenedApp.listen((onData) async {
-      debugPrint("onMessageOpenedAppData:: ${onData.notification?.toMap()}");
+    // debugPrint("✅ tokenFCM:: $tokenFCM");
+    final tokenIn = await LocalStorageService.getValue(
+      LocalStorageKeys.tokenFCM,
+      defaultValue: null,
+    );
+    if (tokenIn == null || tokenIn == '' && tokenFCM != tokenIn) {
+      await LocalStorageService.setValue(LocalStorageKeys.tokenFCM, tokenFCM);
+    }
+    FirebaseMessaging.onMessageOpenedApp.listen((message)async {
+      // debugPrint(
+      //   "📲 onMessageOpenedAppData:: ${message.notification?.toMap()}",
+      // );
     });
-    FirebaseMessaging.onMessage.listen((onData) async {
-      debugPrint("onMessage:: ${onData.notification?.toMap()}");
+
+    FirebaseMessaging.onMessage.listen((message)async {
+      // debugPrint("📥 onMessage:: ${message.notification?.toMap()}");
+      final notification = message.notification;
+
+      if (notification != null) {
+        final title = notification.title ?? 'No Title';
+        final body = notification.body ?? 'No Body';
+
+      await  LocalNotificationService.showNotification(title: title, body: body);
+      }
     });
   }
 
-  Future<void> sendNotification({
-    required String title,
-    required String body,
-    required List<String> tokens,
-  }) async {
-    try {
-      const String serverKey = 'YOUR_SERVER_KEY_HERE'; // ضع المفتاح هنا
+  Future<ServiceAccountCredentials> _loadServiceAccount() async {
+    final jsonStr = await rootBundle.loadString('Assets/service_account.json');
+    return ServiceAccountCredentials.fromJson(jsonStr);
+  }
 
-      for (final token in tokens) {
-        final payload = {
-          "to": token,
+  Future<String> _getAccessToken() async {
+    final credentials = await _loadServiceAccount();
+    final scopes = ['https://www.googleapis.com/auth/firebase.messaging'];
+    final authClient = await clientViaServiceAccount(credentials, scopes);
+    return authClient.credentials.accessToken.data;
+  }
+
+  Future<void> sendNotification({
+    required List<String> tokens,
+    required Map<String, dynamic> payloadData,
+  }) async {
+    final accessToken = await _getAccessToken();
+    const projectId = 'areameasurement-21340';
+
+    for (final token in tokens) {
+      final payload = {
+        "message": {
+          "token": token,
           "notification": {
-            "title": title,
-            "body": body,
+            "title": payloadData['title'],
+            "body": payloadData['body'],
+            if (payloadData['image'] != null) "image": payloadData['image'],
           },
           "data": {
             "click_action": "FLUTTER_NOTIFICATION_CLICK",
             "status": "done",
-          }
-        };
+            ...payloadData['data'] ?? {},
+          },
+        },
+      };
 
-        await _dio.post(
-          'https://fcm.googleapis.com/fcm/send',
+      try {
+        final response = await _dio.post(
+          'https://fcm.googleapis.com/v1/projects/$projectId/messages:send',
           options: Options(
             headers: {
+              'Authorization': 'Bearer $accessToken',
               'Content-Type': 'application/json',
-              'Authorization': 'key=$serverKey',
             },
           ),
           data: jsonEncode(payload),
         );
-      }
 
-      debugPrint('🔔 Notifications sent to ${tokens.length} users.');
-    } catch (e) {
-      debugPrint('❌ Error sending notifications: $e');
+        if (response.statusCode == 200) {
+          // debugPrint('✅ Notification sent to $token');
+        } else {
+          // debugPrint(
+          //   '❌ Error sending to $token: ${response.statusCode} - ${response.data}',
+          // );
+        }
+      } catch (e) {
+        // debugPrint('❌ Dio error: $e');
+      }
     }
   }
 }

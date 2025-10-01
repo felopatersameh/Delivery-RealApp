@@ -1,3 +1,5 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import '../Enum/message_type.dart';
 import 'package:flutter/material.dart';
 
@@ -14,22 +16,22 @@ Future<void> showMessageSnackBar(
     final snackBar = SnackBar(
       content: Row(
         children: [
-          const SizedBox(
-            height: 20,
-            width: 20,
+           SizedBox(
+            height: 20.h,
+            width: 20.w,
             child: CircularProgressIndicator(
               color: Colors.white,
               strokeWidth: 2,
             ),
           ),
-          const SizedBox(width: 12),
+           SizedBox(width: 12.w),
           Expanded(child: Text(title)),
         ],
       ),
       backgroundColor: type.backgroundColor,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(10).r,
       duration: const Duration(hours: 1), // مؤقت طويل (هيتم إغلاقه يدويًا)
     );
 
@@ -51,14 +53,14 @@ Future<void> showMessageSnackBar(
     content: Row(
       children: [
         Icon(type.icon, color: Colors.white),
-        const SizedBox(width: 12),
+         SizedBox(width: 12.w),
         Expanded(child: Text(title)),
       ],
     ),
     backgroundColor: type.backgroundColor,
     behavior: SnackBarBehavior.floating,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    margin: const EdgeInsets.all(16),
+    margin: const EdgeInsets.all(10).r,
     duration: const Duration(seconds: 3),
   );
 

@@ -31,11 +31,11 @@ class ProfilePage extends StatelessWidget {
                 PhotoUser(photo: photo, name: name),
 
                 SizedBox(height: 10.h),
-                ProfileCard(
-                  icon: Icons.fingerprint,
-                  title: 'User ID',
-                  value: userID,
-                ),
+                // ProfileCard(
+                //   icon: Icons.fingerprint,
+                //   title: 'User ID',
+                //   value: userID,
+                // ),
 
                 ProfileCard(icon: Icons.person, title: 'Name', value: name),
 
@@ -51,11 +51,6 @@ class ProfilePage extends StatelessWidget {
                   icon: Icons.badge,
                   title: 'Type Account',
                   value: userType,
-                ),
-                ProfileCard(
-                  icon: Icons.password,
-                  title: 'Password',
-                  value: password,
                 ),
                 InkWell(
                   onTap: () async {
